@@ -6,8 +6,7 @@
     "dev": "slidev slides.md --open",
     "dev:themes": "slidev theme-preview.md --port 3051 --open",
     "test": "cd examples && go test -race ./... && go vet ./...",
-    "build": "slidev build slides.md --base ${PAGES_PATH_PREFIX:-}/python-to-go-concurrency/2026-11-02/ --out dist",
-    "build:hugo": "rm -rf ../../../static/slides/python-to-go-concurrency/2026-11-02 && slidev build slides.md --base ${PAGES_PATH_PREFIX:-}/python-to-go-concurrency/2026-11-02/ --out ../../../static/slides/python-to-go-concurrency/2026-11-02"
+    "build": "slidev build slides.md --base ${PAGES_PATH_PREFIX:-}/python-to-go-concurrency/2026-11-02/ --out dist"
   },
   "devDependencies": {
     "@slidev/cli": "^52.19.0",

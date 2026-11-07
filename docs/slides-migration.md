@@ -29,16 +29,20 @@ For the 10 legacy Reveal decks, only the Hugo-specific format was replaced:
   final references slide, preserving the old final slide's position.
 - The previously empty faster-tests deck has a title-only placeholder.
 
-`build-reveal.py` copies the pinned npm Reveal.js assets and generates only the
-small HTML launcher. Reveal's Markdown plugin loads `slides.md` in the browser.
+`scripts/build.mjs` copies the pinned npm Reveal.js assets and generates only
+the small HTML launcher. Reveal's Markdown plugin loads `slides.md` in the browser.
 No deck content is authored as HTML. The original Markdown also remains available
 in the original blog checkout; it was not replaced there.
 
-`copy-slide-assets.py` preserves image/PDF paths, including images referenced
-through runtime strings which Vite does not bundle automatically.
+The same script builds Slidev decks and preserves image/PDF paths, including
+images referenced through runtime strings which Vite does not bundle automatically.
+It starts with a fresh `public/` directory to avoid stale files shadowing routes.
 
-There is no reveal-hugo dependency in either the standalone repo or the blog
-migration worktree. Hugo remains for the slides index and GitLab routing rules.
+The standalone site needs neither Hugo nor Python. Nix, Task, pnpm, and GitLab
+Pages remain; miniserve provides local previews. The root HTML page immediately
+redirects to the blog's `/talks/`, with a canonical URL and fallback link. Pages
+serves existing files before redirect rules, so this is an HTML redirect rather
+than an HTTP 301.
 
 ## Pages configuration
 
@@ -47,9 +51,10 @@ publishes `public/`. The shell provides the tools used by every build step;
 Reveal.js/Mermaid are pinned in the root pnpm manifest/lockfile and Slidev uses
 its per-deck frozen lockfiles.
 
-`task pages` derives the public base URL and asset prefix from `CI_PAGES_URL`.
-This supports the GitLab Pages host for now, including a `/slides` project path.
-The generated root `_redirects` contains per-deck SPA fallbacks for Slidev.
+`task pages` passes `CI_PAGES_URL` to the Node build, which derives the asset
+and route prefix. This supports the GitLab Pages host, including a `/slides`
+project path. The generated root `_redirects` contains per-deck SPA fallbacks
+for Slidev.
 
 The permanent old-domain redirects still target `https://slides.haseebmajid.dev/`.
 Before deploying the blog cutover, either configure that custom domain on the new
@@ -60,7 +65,9 @@ safe to redirect yet.
 ## Compatibility and cutover gate
 
 The blog worktree owns the authoritative `data/slide_redirects.toml` compatibility
-map. Keep the standalone copy in sync. The blog generates 38 HTTP 301 rules via
+map. Keep the same `base_url` and `old`/`new` entries in the standalone
+`data/slide_redirects.json` in sync. JSON lets the Node build read the map without
+a TOML parser dependency; `notes` retain the existing metadata caveats. The blog generates 38 HTTP 301 rules via
 Hugo for all 12 legacy deck slugs, their slash/no-slash URLs and nested files,
 plus the old index. Keep these rules permanently for existing printed QR codes.
 
@@ -97,3 +104,13 @@ GitLab project prefix, a converted Mermaid diagram rendered, and native code
 highlight ranges/fragments were verified. All 225 original non-Mermaid code
 blocks were also compared byte-for-byte after conversion. This is not an
 exhaustive visual review of every slide or proof of live GitLab redirect behavior.
+
+After replacing Hugo/Python, full Nix builds passed for domain-root and `/slides`
+project-prefix URLs. Ad-hoc checks verified all 12 edition entry pages, 140 image
+files, eight PDFs, unchanged Reveal Markdown/options/launchers, matching blog map
+entries, the homepage redirect, and prefix-aware Slidev rules. A rebuild removed
+a deliberately stale output file. The miniserve preview served all 12 deck entry
+pages and shared assets over HTTP. No new tests were added and no deployment was
+performed. Browser checks were not repeated because Chrome is unavailable.
+The Pocketbase and Docker launchers still reference missing `images/logo.png`
+files; those references were already broken in the previous output.

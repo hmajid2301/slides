@@ -1,6 +1,4 @@
 /public/
-/resources/
-/.hugo_build.lock
 /.direnv/
 /.task/
 /.glciconfig.toml
@@ -9,7 +7,7 @@
 **/.slidev/
 **/__pycache__/
 **/.venv/
-# Keep only hand-maintained static assets; deck output is generated.
+# Keep only hand-maintained static assets; ignore output left by older builds.
 /static/slides/*
 !/static/slides/favicon-*.png
 !/static/slides/stylesheets/

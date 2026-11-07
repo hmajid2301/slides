@@ -16,12 +16,10 @@
           GIT_SSL_CAINFO = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
           packages = with pkgs; [
             go
-            hugo
-            jq
+            miniserve
             go-task
             nodejs_24
             pnpm
-            python3
           ];
         };
       });
