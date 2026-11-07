@@ -65,6 +65,8 @@ const tokens = computed(() => {
       ]
     case 'select':
       return [{ key: 'value', label: 'URL', x: s >= 3 ? 965 : 175, y: s >= 3 ? 334 : 165, visible: true }]
+    default:
+      throw new Error(`Unknown channel scene: ${props.scene}`)
   }
 })
 </script>

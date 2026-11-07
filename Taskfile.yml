@@ -1,6 +1,12 @@
-version: "3"
+version: '3'
 
 tasks:
+  lint:
+    cmds:
+      - pnpm install --frozen-lockfile
+      - pnpm lint
+      - nixfmt --check flake.nix
+
   build:
     cmds:
       - pnpm install --frozen-lockfile

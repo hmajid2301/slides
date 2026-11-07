@@ -75,6 +75,8 @@ const tokens = computed<Token[]>(() => {
       g('G5', s === 3 ? 620 : s === 2 ? 590 : 270, s === 3 ? 185 : 335, s === 3 ? 'running' : 'runnable'),
       g('G6', s >= 2 ? 710 : 360, 335, 'runnable'),
     ]
+    default:
+      throw new Error(`Unknown scheduler scene: ${props.scene}`)
   }
 })
 const thread1X = computed(() => props.scene === 'syscall' && stage.value >= 1 ? 950 : 300)

@@ -34,7 +34,7 @@ pnpm add -D /tmp/slidev-addon-code-journey-0.1.0.tgz
 
 ### Existing blog decks
 
-The Python→Go deck opts in with `addons: ['@/../slidev-shared/addons/code-journey']`. Its slides retain the same component names and click sequences. Other decks are not changed.
+The Python→Go deck opts in with `addons: ['@/../../slidev-shared/addons/code-journey']`. Its slides retain the same component names and click sequences. Other decks are not changed.
 
 ## NeovimCode
 
@@ -154,5 +154,5 @@ slidev build example.md --out /tmp/code-journey-example
 From the existing Python→Go deck's directory, reuse its installed CLI:
 
 ```sh
-pnpm exec slidev build ../slidev-shared/addons/code-journey/example.md --out /tmp/code-journey-example
+pnpm exec slidev build ../../slidev-shared/addons/code-journey/example.md --out /tmp/code-journey-example
 ```

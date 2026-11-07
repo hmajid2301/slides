@@ -1,45 +1,88 @@
 #!/usr/bin/env node
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const output = join(root, 'public');
-const { base_url, decks } = JSON.parse(readFileSync(join(root, 'data/slide_redirects.json'), 'utf8'));
-const prefix = new URL(process.env.CI_PAGES_URL || `${base_url}/`).pathname.replace(/\/$/, '');
-const escape = value => String(value).replace(/[&<>"']/g, character => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;',
-})[character]);
-const copy = (source, destination) => cpSync(source, destination, { recursive: true });
+const { base_url, decks } = JSON.parse(
+  readFileSync(join(root, 'data/slide_redirects.json'), 'utf8'),
+);
+const prefix = new URL(
+  process.env.CI_PAGES_URL || `${base_url}/`,
+).pathname.replace(/\/$/, '');
+const escape = (value) =>
+  String(value).replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+      })[character],
+  );
+const copy = (source, destination) =>
+  cpSync(source, destination, { recursive: true });
 const redirects = [];
 
 rmSync(output, { recursive: true, force: true });
 mkdirSync(output, { recursive: true });
-for (const asset of ['favicon-16x16.png', 'favicon-32x32.png', 'stylesheets', 'highlight-js', 'reveal-init.js']) {
+for (const asset of [
+  'favicon-16x16.png',
+  'favicon-32x32.png',
+  'stylesheets',
+  'highlight-js',
+  'reveal-init.js',
+]) {
   copy(join(root, 'static/slides', asset), join(output, asset));
 }
 for (const directory of ['dist', 'plugin', 'LICENSE']) {
-  copy(join(root, 'node_modules/reveal.js', directory), join(output, 'reveal-js', directory));
+  copy(
+    join(root, 'node_modules/reveal.js', directory),
+    join(output, 'reveal-js', directory),
+  );
 }
 copy(join(root, 'node_modules/mermaid/dist'), join(output, 'mermaid'));
-copy(join(root, 'node_modules/mermaid/LICENSE'), join(output, 'mermaid/LICENSE'));
+copy(
+  join(root, 'node_modules/mermaid/LICENSE'),
+  join(output, 'mermaid/LICENSE'),
+);
 
 for (const deck of decks) {
-  const source = join(root, 'content/slides', deck.old);
+  const source = join(root, 'content/slides', deck.new);
   const destination = join(output, deck.new);
   if (existsSync(join(source, 'deck.json'))) {
-    const metadata = JSON.parse(readFileSync(join(source, 'deck.json'), 'utf8'));
+    const metadata = JSON.parse(
+      readFileSync(join(source, 'deck.json'), 'utf8'),
+    );
     cpSync(source, destination, {
       recursive: true,
-      filter: path => !relative(source, path).split('/').some(part =>
-        ['node_modules', 'dist', '.slidev', '__pycache__'].includes(part)),
+      filter: (path) =>
+        !relative(source, path)
+          .split('/')
+          .some((part) =>
+            ['node_modules', 'dist', '.slidev', '__pycache__'].includes(part),
+          ),
     });
     const assetPrefix = '../'.repeat(deck.new.split('/').length);
     const image = metadata.logo;
-    const logo = image ? `<img src="${escape(image.src)}" alt="" style="position:absolute;top:${escape(image.diag ?? '90%')};left:${escape(image.diag ?? '90%')};width:${escape(image.width ?? '3%')}">` : '';
+    const logo = image
+      ? `<img src="${escape(image.src)}" alt="" style="position:absolute;top:${escape(image.diag ?? '90%')};left:${escape(image.diag ?? '90%')};width:${escape(image.width ?? '3%')}">`
+      : '';
     const config = JSON.stringify(metadata.reveal).replace(/</g, '\\u003c');
-    writeFileSync(join(destination, 'index.html'), `<!doctype html>
+    writeFileSync(
+      join(destination, 'index.html'),
+      `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -66,23 +109,47 @@ ${logo}
 <script src="${assetPrefix}reveal-init.js"></script>
 </body>
 </html>
-`);
+`,
+    );
   } else {
-    execFileSync('pnpm', ['install', '--frozen-lockfile'], { cwd: source, stdio: 'inherit' });
-    execFileSync('pnpm', ['exec', 'slidev', 'build', 'slides.md', '--base', `${prefix}/${deck.new}/`, '--out', destination], {
-      cwd: source, stdio: 'inherit',
+    execFileSync('pnpm', ['install', '--frozen-lockfile'], {
+      cwd: source,
+      stdio: 'inherit',
     });
-    redirects.push(`${prefix}/${deck.new}/* ${prefix}/${deck.new}/index.html 200`);
+    execFileSync(
+      'pnpm',
+      [
+        'exec',
+        'slidev',
+        'build',
+        'slides.md',
+        '--base',
+        `${prefix}/${deck.new}/`,
+        '--out',
+        destination,
+      ],
+      {
+        cwd: source,
+        stdio: 'inherit',
+      },
+    );
+    redirects.push(
+      `${prefix}/${deck.new}/* ${prefix}/${deck.new}/index.html 200`,
+    );
   }
   // Vite cannot bundle images/PDFs referenced only through runtime strings.
-  if (existsSync(join(source, 'images'))) copy(join(source, 'images'), join(destination, 'images'));
-  if (existsSync(join(source, 'slides.pdf'))) copy(join(source, 'slides.pdf'), join(destination, 'slides.pdf'));
+  if (existsSync(join(source, 'images')))
+    copy(join(source, 'images'), join(destination, 'images'));
+  if (existsSync(join(source, 'slides.pdf')))
+    copy(join(source, 'slides.pdf'), join(destination, 'slides.pdf'));
   console.log(`Published: ${deck.new}`);
 }
 
 writeFileSync(join(output, '_redirects'), `${redirects.join('\n')}\n`);
 // Pages serves index.html before redirect rules, so the root uses an HTML redirect.
-writeFileSync(join(output, 'index.html'), `<!doctype html>
+writeFileSync(
+  join(output, 'index.html'),
+  `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -95,4 +162,5 @@ writeFileSync(join(output, 'index.html'), `<!doctype html>
   <main><p>Redirecting to <a href="https://haseebmajid.dev/talks/">talk descriptions, slides, and recordings</a>.</p></main>
 </body>
 </html>
-`);
+`,
+);

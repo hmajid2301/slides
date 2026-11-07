@@ -1,6 +1,6 @@
 /* Shared theme and opt-in presentation patterns, then Kafka-specific overrides. */
-@import '../../slidev-shared/styles/theme.css';
-@import '../../slidev-shared/styles/patterns.css';
+@import '../../../slidev-shared/styles/theme.css';
+@import '../../../slidev-shared/styles/patterns.css';
 
 .slidev-layout .retry-overview { width: 1100px; }
 .retry-overview .rough-diagram { margin-top: 0; }

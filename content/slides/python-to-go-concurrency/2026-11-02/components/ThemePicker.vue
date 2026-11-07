@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useNav } from '@slidev/client'
-import { themePresets } from '../../slidev-shared/theme-presets'
-import '../../slidev-shared/styles/theme-preview.css'
+import { themePresets } from '../../../slidev-shared/theme-presets'
+import '../../../slidev-shared/styles/theme-preview.css'
 
 const nav = useNav()
 const enabled = ref(false)

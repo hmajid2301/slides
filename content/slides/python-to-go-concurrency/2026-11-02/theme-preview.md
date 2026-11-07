@@ -2,7 +2,7 @@
 src: ./slides.md
 theme: default
 addons:
-  - '@/../slidev-shared/addons/code-journey'
+  - '@/../../slidev-shared/addons/code-journey'
 title: "From Python to Go · theme and animation preview"
 colorSchema: dark
 routerMode: hash

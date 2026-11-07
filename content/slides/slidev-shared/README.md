@@ -3,8 +3,8 @@
 Decks opt in through their own `styles/index.css` (automatically loaded by Slidev):
 
 ```css
-@import '../../slidev-shared/styles/theme.css';
-@import '../../slidev-shared/styles/patterns.css';
+@import '../../../slidev-shared/styles/theme.css';
+@import '../../../slidev-shared/styles/patterns.css';
 
 /* Deck-specific overrides go after the imports. */
 ```

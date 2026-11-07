@@ -1,13 +1,38 @@
 stages:
+  - test
+  - build
   - deploy
 
 default:
   image: nixpkgs/nix-flakes:nixos-26.05-x86_64-linux
 
 variables:
-  NIX_CONFIG: "experimental-features = nix-command flakes"
+  NIX_CONFIG: 'experimental-features = nix-command flakes'
 
-# Build all decks in the Nix shell and publish to the GitLab Pages URL.
+# Lint authored code and project configuration without formatting deck Markdown.
+lint:
+  stage: test
+  script:
+    - nix develop -c task lint
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+# Build all decks on branches and MRs without deploying Pages.
+build:
+  stage: build
+  needs: []
+  script:
+    - nix develop -c task build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+
+# Build all decks in the Nix shell and publish only from the default branch.
 pages:
   stage: deploy
   script:
@@ -16,4 +41,3 @@ pages:
     publish: public
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == "schedule"
