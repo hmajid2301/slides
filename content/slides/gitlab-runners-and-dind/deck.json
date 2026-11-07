@@ -1,0 +1,10 @@
+{
+  "title": "Gitlab Runners Docker-in-Docker Explained",
+  "theme": "stylesheets/reveal/zoe.css",
+  "logo": null,
+  "reveal": {
+    "hash": true,
+    "slideNumber": true,
+    "autoPlayMedia": false
+  }
+}

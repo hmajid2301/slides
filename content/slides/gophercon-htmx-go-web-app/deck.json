@@ -1,0 +1,14 @@
+{
+  "title": "What I learnt building a web app with Go and HTMX",
+  "theme": "stylesheets/reveal/catppuccin.css",
+  "logo": {
+    "src": "images/gophercon.svg",
+    "diag": "90%",
+    "width": "5%"
+  },
+  "reveal": {
+    "hash": true,
+    "slideNumber": true,
+    "autoPlayMedia": false
+  }
+}

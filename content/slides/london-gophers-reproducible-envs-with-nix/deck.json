@@ -1,0 +1,14 @@
+{
+  "title": "Using Nix to create reproducible Go development environments",
+  "theme": "stylesheets/reveal/catppuccin.css",
+  "logo": {
+    "src": "images/logo.png",
+    "diag": "85%",
+    "width": "8%"
+  },
+  "reveal": {
+    "hash": true,
+    "slideNumber": true,
+    "autoPlayMedia": false
+  }
+}

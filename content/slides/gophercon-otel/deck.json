@@ -1,0 +1,14 @@
+{
+  "title": "Log, Metrics and Tracing with OTel & Go",
+  "theme": "stylesheets/reveal/catppuccin.css",
+  "logo": {
+    "src": "images/logo.svg",
+    "diag": "90%",
+    "width": "5%"
+  },
+  "reveal": {
+    "hash": true,
+    "slideNumber": true,
+    "autoPlayMedia": true
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "go-labs-eda-go-kafka",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "slidev slides.md --open",
+    "test": "node --test tests/*.test.ts",
+    "build": "slidev build slides.md --base ${PAGES_PATH_PREFIX:-}/eda-go-kafka/2026-11-02-golab/ --out dist",
+    "build:hugo": "rm -rf ../../../static/slides/eda-go-kafka/2026-11-02-golab && slidev build slides.md --base ${PAGES_PATH_PREFIX:-}/eda-go-kafka/2026-11-02-golab/ --out ../../../static/slides/eda-go-kafka/2026-11-02-golab"
+  },
+  "devDependencies": {
+    "@slidev/cli": "^52.19.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-slidev": "^1.0.5"
+  },
+  "dependencies": {
+    "@slidev/theme-default": "^0.25.0",
+    "roughjs": "4.6.6"
+  }
+}

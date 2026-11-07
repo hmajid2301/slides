@@ -1,0 +1,14 @@
+{
+  "title": "My Journey Using Docker as a Development Tool",
+  "theme": "stylesheets/reveal/zoe.css",
+  "logo": {
+    "src": "images/logo.png",
+    "diag": "90%",
+    "width": "3%"
+  },
+  "reveal": {
+    "hash": true,
+    "slideNumber": true,
+    "autoPlayMedia": false
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "title": "An Introduction to PocketBase: A Go-Based Backend as a Service",
+  "theme": "stylesheets/reveal/dracula.css",
+  "logo": {
+    "src": "images/logo.png",
+    "diag": "90%",
+    "width": "3%"
+  },
+  "reveal": {
+    "hash": true,
+    "slideNumber": true,
+    "autoPlayMedia": false
+  }
+}

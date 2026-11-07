@@ -1,0 +1,6 @@
+{{- $prefix := strings.TrimRight "/" (urls.Parse site.BaseURL).Path -}}
+{{- range hugo.Data.slide_redirects.decks -}}
+  {{- if fileExists (printf "content/slides/%s/package.json" .old) -}}
+    {{- printf "%s/%s/* %s/%s/index.html 200\n" $prefix .new $prefix .new -}}
+  {{- end -}}
+{{- end -}}

@@ -1,0 +1,14 @@
+{
+  "title": "Reproducible & Ephemeral Development Environments with Nix",
+  "theme": "stylesheets/reveal/catppuccin.css",
+  "logo": {
+    "src": "images/logo.png",
+    "diag": "90%",
+    "width": "3%"
+  },
+  "reveal": {
+    "hash": true,
+    "slideNumber": true,
+    "autoPlayMedia": false
+  }
+}

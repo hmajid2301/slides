@@ -1,0 +1,10 @@
+{
+  "title": "From Coffee Break to Instant Feedback: Rapid Integration Testing in Go",
+  "theme": "stylesheets/reveal/catppuccin.css",
+  "logo": null,
+  "reveal": {
+    "hash": true,
+    "slideNumber": false,
+    "autoPlayMedia": false
+  }
+}

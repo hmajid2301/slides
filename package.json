@@ -1,0 +1,12 @@
+{
+  "name": "slides",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "task build"
+  },
+  "dependencies": {
+    "mermaid": "12.3.0",
+    "reveal.js": "5.2.1"
+  }
+}

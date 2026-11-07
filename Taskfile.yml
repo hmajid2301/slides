@@ -1,0 +1,42 @@
+version: "3"
+
+tasks:
+  build:
+    cmds:
+      - pnpm install --frozen-lockfile
+      - python3 scripts/build-reveal.py
+      - task slides:publish:slidev
+      - python3 scripts/copy-slide-assets.py
+      - hugo
+
+  pages:
+    requires:
+      vars: [CI_PAGES_URL]
+    cmds:
+      - |
+        set -euo pipefail
+        export HUGO_BASEURL="${CI_PAGES_URL%/}/"
+        export PAGES_PATH_PREFIX="$(node -p 'new URL(process.env.HUGO_BASEURL).pathname.replace(/\/$/, "")')"
+        task build
+        test -s public/index.html
+
+  start_server:
+    cmds:
+      - hugo server
+
+  slides:publish:slidev:
+    cmds:
+      - |
+        set -euo pipefail
+        for deck in content/slides/*/package.json; do
+          [ -f "$deck" ] || continue
+          if ! jq -e '.scripts["build:hugo"]' "$deck" >/dev/null 2>&1; then
+            continue
+          fi
+          echo "Publishing Slidev deck: $(basename "$(dirname "$deck")")"
+          (
+            cd "$(dirname "$deck")"
+            pnpm install --frozen-lockfile
+            pnpm build:hugo
+          )
+        done

@@ -1,0 +1,19 @@
+stages:
+  - deploy
+
+default:
+  image: nixpkgs/nix-flakes:nixos-26.05-x86_64-linux
+
+variables:
+  NIX_CONFIG: "experimental-features = nix-command flakes"
+
+# Build all decks in the Nix shell and publish to the GitLab Pages URL.
+pages:
+  stage: deploy
+  script:
+    - nix develop -c task pages
+  pages:
+    publish: public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "schedule"

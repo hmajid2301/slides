@@ -1,0 +1,17 @@
+/public/
+/resources/
+/.hugo_build.lock
+/.direnv/
+/.task/
+/.glciconfig.toml
+**/node_modules/
+**/dist/
+**/.slidev/
+**/__pycache__/
+**/.venv/
+# Keep only hand-maintained static assets; deck output is generated.
+/static/slides/*
+!/static/slides/favicon-*.png
+!/static/slides/stylesheets/
+!/static/slides/highlight-js/
+!/static/slides/reveal-init.js
