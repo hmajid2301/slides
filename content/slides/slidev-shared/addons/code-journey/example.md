@@ -34,6 +34,18 @@ def check(url):
 </NeovimCode>
 
 ---
+
+# A Starship prompt and coloured output
+
+<TerminalWindow cwd="lettucego" go="1.26.4" command="pre-commit run --all-files">
+
+<pre>
+sqlfluff-lint............................<span class="ok">Passed</span>
+</pre>
+
+</TerminalWindow>
+
+---
 clicks: 3
 ---
 

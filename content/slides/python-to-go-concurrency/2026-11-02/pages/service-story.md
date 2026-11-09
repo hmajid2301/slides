@@ -829,21 +829,24 @@ Sources: examples/main_test.go; https://pkg.go.dev/cmd/go#hdr-Test_packages ; ht
 -->
 
 ---
-layout: terminal
+layout: default
 title: Evidence, not a promise
-command: go test -race -v ./... && go vet ./...
 ---
 
 # Can it stop? Can it stay bounded?
 
-```text
-TestRunBoundedAndCollectsEveryResult     PASS
-TestRunKeepsPerURLErrors                PASS
-TestRunCancellationJoinsWorkers        PASS
-TestRunDeadline                        PASS
-TestRunEmptyAndInvalidWorkerCount      PASS
-TestCheckRequestTimeout                PASS
-```
+<TerminalWindow command="go test -race -v ./... && go vet ./..." cwd="examples" go="1.26.5">
+
+<pre>
+TestRunBoundedAndCollectsEveryResult     <span class="ok">PASS</span>
+TestRunKeepsPerURLErrors                <span class="ok">PASS</span>
+TestRunCancellationJoinsWorkers        <span class="ok">PASS</span>
+TestRunDeadline                        <span class="ok">PASS</span>
+TestRunEmptyAndInvalidWorkerCount      <span class="ok">PASS</span>
+TestCheckRequestTimeout                <span class="ok">PASS</span>
+</pre>
+
+</TerminalWindow>
 
 Existing tests · real local HTTP · no external network
 
@@ -857,22 +860,25 @@ Existing tests · real local HTTP · no external network
 -->
 
 ---
-layout: terminal
+layout: default
 title: One service, three stages
-command: python3 demo.py
 ---
 
 # Same report. Different waiting.
 
-```text
-Python sequential → 6 results; peak 1
-Go sequential     → 6 results; peak 1
-Go pool           → 6 results; peak 2
+<TerminalWindow command="python3 demo.py" cwd="examples" python="3.14.8">
 
-/ok     → 200, no error
-/broken → 503, URL error
-/slow   →   0, URL timeout
-```
+<pre>
+<span class="info">Python sequential</span> → 6 results; <span class="dim">peak 1</span>
+<span class="info">Go sequential</span>     → 6 results; <span class="dim">peak 1</span>
+<span class="info">Go pool</span>           → 6 results; <span class="dim">peak 2</span>
+
+<span class="ok">/ok</span>     → <span class="ok">200</span>, <span class="dim">no error</span>
+<span class="warn">/broken</span> → <span class="warn">503</span>, <span class="warn">URL error</span>
+<span class="fail">/slow</span>   → <span class="fail">0</span>, <span class="fail">URL timeout</span>
+</pre>
+
+</TerminalWindow>
 
 Normalized captured demo output. This is not a cross-language benchmark.
 

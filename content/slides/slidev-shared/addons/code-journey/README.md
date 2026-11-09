@@ -1,6 +1,6 @@
 # Slidev Code Journey
 
-A local Slidev addon with four components: a Neovim-style code frame, Go project/tooling animations, scheduler scenes and channel scenes. No deck layouts, syntax themes, fonts, images or build plugins are bundled. Requires **Slidev 52+ and Vue 3.5+**; Vue and Slidev come from the consuming deck.
+A local Slidev addon with five components: a Neovim-style code frame, a themed terminal window, Go project/tooling animations, scheduler scenes and channel scenes. No deck layouts, syntax themes, fonts, images or build plugins are bundled. Requires **Slidev 52+ and Vue 3.5+**; Vue and Slidev come from the consuming deck.
 
 This is source you can move to another repository, **not a published npm package**. It is private and `UNLICENSED`; choose a license before public redistribution or publishing. No upstream artwork or application code from the Neovim reference screenshots is included.
 
@@ -80,6 +80,32 @@ def check(url):
 - Click behavior belongs to the slide. The example uses directory → picker → opened buffer. Forward/backward selection changes animate without timers or autoplay.
 - Keep excerpts short (about six lines in the default 360px frame). The picker is intentionally a small project illustration, not a scrolling file browser. Override `style="height: 420px"` if your layout has more room.
 - Disable your deck's own code line numbers for this frame to avoid a duplicate gutter. The illustration places the cursor on the first line and shows relative numbers below it.
+
+## Terminal
+
+A static, themed terminal window for captured command output, styled like a Starship prompt. It is a presentation frame, **not** a live shell: nothing executes, so output stays deterministic offline and in exports. It follows the same theme variables as the other components, so the window restyles with Midnight Terminal and every other deck preset.
+
+````md
+<TerminalWindow cwd="lettucego" go="1.26.4" command="pre-commit run --all-files">
+
+<pre>
+sqlfluff-lint............................<span class="ok">Passed</span>
+</pre>
+
+</TerminalWindow>
+````
+
+| Prop | Type | Default / meaning |
+| --- | --- | --- |
+| `title` | string | `bash`; window title-bar label |
+| `command` | string | Empty; the command shown at the prompt. Omit for output-only terminals. |
+| `cwd` | string | Empty; directory segment (cyan) |
+| `go` | string | Empty; `via 🐹 v<go>` segment (cyan) |
+| `python` | string | Empty; `via 🐍 v<python>` segment (yellow) |
+| `prompt` | string | `❯`; prompt symbol |
+
+- **Default slot:** rendered output. Use a raw `<pre>` block with `<span class="ok">`, `<span class="fail">`, `<span class="warn">`, `<span class="info">` or `<span class="dim">` to colour lines (`ok`/`pass` green, `fail`/`err` red, `warn`/`timeout` yellow, `info`/`path` cyan, `dim` muted).
+- Keep output short; the window sizes to its content and doesn't scroll.
 
 ## Click-driven diagrams
 
