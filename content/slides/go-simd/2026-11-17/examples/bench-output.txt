@@ -1,0 +1,54 @@
+goos: linux
+goarch: amd64
+pkg: example.com/gosimd
+cpu: AMD Ryzen 9 7950X3D 16-Core Processor          
+BenchmarkAdd/scalar/n=4096-32         	 1000000	      3266 ns/op	15049.60 MB/s
+BenchmarkAdd/scalar/n=4096-32         	 1000000	      3325 ns/op	14781.95 MB/s
+BenchmarkAdd/scalar/n=4096-32         	 1000000	      3313 ns/op	14837.71 MB/s
+BenchmarkAdd/scalar/n=4096-32         	 1000000	      3234 ns/op	15200.70 MB/s
+BenchmarkAdd/scalar/n=4096-32         	 1000000	      3275 ns/op	15009.17 MB/s
+BenchmarkAdd/asm/n=4096-32            	 7627034	       314.9 ns/op	156064.91 MB/s
+BenchmarkAdd/asm/n=4096-32            	 7567932	       315.5 ns/op	155775.49 MB/s
+BenchmarkAdd/asm/n=4096-32            	 7407601	       316.7 ns/op	155191.28 MB/s
+BenchmarkAdd/asm/n=4096-32            	 7549816	       315.7 ns/op	155678.88 MB/s
+BenchmarkAdd/asm/n=4096-32            	 7606173	       315.3 ns/op	155904.10 MB/s
+BenchmarkAdd/simd/n=4096-32           	 7677996	       309.3 ns/op	158937.30 MB/s
+BenchmarkAdd/simd/n=4096-32           	 7819095	       307.4 ns/op	159918.39 MB/s
+BenchmarkAdd/simd/n=4096-32           	 7687196	       307.9 ns/op	159639.72 MB/s
+BenchmarkAdd/simd/n=4096-32           	 7790104	       309.3 ns/op	158912.75 MB/s
+BenchmarkAdd/simd/n=4096-32           	 7757018	       308.0 ns/op	159560.97 MB/s
+BenchmarkAdd/archsimd/n=4096-32       	 7734175	       310.9 ns/op	158099.76 MB/s
+BenchmarkAdd/archsimd/n=4096-32       	 7588077	       315.7 ns/op	155682.87 MB/s
+BenchmarkAdd/archsimd/n=4096-32       	 7632660	       311.0 ns/op	158057.10 MB/s
+BenchmarkAdd/archsimd/n=4096-32       	 7713760	       311.8 ns/op	157650.31 MB/s
+BenchmarkAdd/archsimd/n=4096-32       	 7502506	       317.1 ns/op	154998.00 MB/s
+PASS
+ok  	example.com/gosimd	52.242s
+# GODEBUG=simd=0
+BenchmarkAdd/simd/n=4096-32         	  112683	     10815 ns/op	4544.79 MB/s
+BenchmarkAdd/simd/n=4096-32         	  110215	     10612 ns/op	4631.81 MB/s
+BenchmarkAdd/simd/n=4096-32         	  110011	     10757 ns/op	4569.26 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3736669	       315.8 ns/op	155653.76 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3807296	       315.7 ns/op	155679.90 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3806992	       315.1 ns/op	155966.79 MB/s
+# GODEBUG=simd=128
+BenchmarkAdd/simd/n=4096-32         	 2619888	       558.4 ns/op	88028.36 MB/s
+BenchmarkAdd/simd/n=4096-32         	 1914556	       630.8 ns/op	77915.57 MB/s
+BenchmarkAdd/simd/n=4096-32         	 1905266	       588.4 ns/op	83540.06 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3751069	       317.8 ns/op	154638.99 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3737103	       319.3 ns/op	153922.79 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3729980	       321.6 ns/op	152838.18 MB/s
+# GODEBUG=simd=256
+BenchmarkAdd/simd/n=4096-32         	 3641846	       328.6 ns/op	149589.77 MB/s
+BenchmarkAdd/simd/n=4096-32         	 3580777	       331.9 ns/op	148088.69 MB/s
+BenchmarkAdd/simd/n=4096-32         	 3668023	       326.9 ns/op	150337.78 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3786351	       319.0 ns/op	154097.92 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3766452	       314.9 ns/op	156102.11 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3834678	       313.2 ns/op	156928.76 MB/s
+# GODEBUG=simd=512
+BenchmarkAdd/simd/n=4096-32         	 3862287	       308.9 ns/op	159130.04 MB/s
+BenchmarkAdd/simd/n=4096-32         	 3844714	       307.6 ns/op	159789.94 MB/s
+BenchmarkAdd/simd/n=4096-32         	 3895902	       308.0 ns/op	159574.40 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3800216	       316.4 ns/op	155366.39 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3805779	       314.5 ns/op	156304.40 MB/s
+BenchmarkAdd/archsimd/n=4096-32     	 3840487	       319.2 ns/op	153976.42 MB/s

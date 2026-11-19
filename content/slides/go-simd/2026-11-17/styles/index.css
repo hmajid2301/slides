@@ -1,0 +1,374 @@
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=DM+Sans:wght@400;500;700&display=swap');
+@import '../../../slidev-shared/styles/monolisa.css';
+
+/* Gopher Arcade: platformer overworld sky, Go brand blue, an 8-bit
+   display face and hard pixel shadows. Tokens double as the SVG
+   component API. */
+:root {
+  color-scheme: dark;
+  --arc-bg: #2c5cc5;
+  --arc-panel: #0b1b2b;
+  --arc-line: #1d3d6b;
+  --arc-ink: #ffffff;
+  --arc-muted: #eaf2ff;
+  --arc-blue: #00add8;
+  --arc-sky: #ffffff;
+  --arc-yellow: #fddd00;
+  --arc-pink: #ce3262;
+  --arc-shadow: #0b1b2b;
+  --arc-hud: #ffffff;
+  --arc-pixel: 'Pixelify Sans', 'MonoLisa', 'JetBrains Mono', monospace;
+  --arc-mono: 'MonoLisa', 'JetBrains Mono', monospace;
+  --slidev-theme-primary: var(--arc-blue);
+  --slidev-code-background: var(--arc-panel);
+}
+
+html, body, #app { background: var(--arc-bg); }
+::selection { background: var(--arc-pink); color: #fff; }
+
+.slidev-layout.arcade {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 36px 64px 30px;
+  color: var(--arc-ink);
+  background: var(--arc-bg);
+  font: 500 28px/1.4 'DM Sans', sans-serif;
+  text-align: left;
+  overflow: hidden;
+}
+.slidev-layout.arcade::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.arcade > * { position: relative; z-index: 1; }
+
+.arcade-top, .arcade-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  font: 500 18px var(--arc-pixel);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.arcade-kicker { color: var(--arc-yellow); }
+.arcade-player { color: var(--arc-hud); }
+.arcade-footer { color: var(--arc-muted); font-size: 16px; }
+.arcade-bar { display: flex; gap: 4px; }
+.arcade-bar i { width: 14px; height: 14px; background: var(--arc-line); }
+.arcade-bar i.on { background: var(--arc-blue); box-shadow: 0 0 6px var(--arc-blue); }
+
+.arcade-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  padding: 12px 0;
+}
+
+.arcade h1, .arcade h2, .arcade h3 {
+  font-family: var(--arc-pixel);
+  font-weight: 700;
+  color: var(--arc-ink);
+  line-height: 1.05;
+  letter-spacing: .01em;
+  margin: 0 0 24px;
+}
+.arcade h1 { font-size: 84px; text-shadow: 5px 5px 0 var(--arc-pink); }
+.arcade h2 { font-size: 52px; text-shadow: 4px 4px 0 var(--arc-shadow); }
+.arcade h3 { font-size: 30px; color: var(--arc-sky); }
+.arcade p { margin: 12px 0; }
+.arcade strong { color: var(--arc-yellow); font-weight: 700; }
+.arcade em { color: var(--arc-sky); font-style: normal; }
+.arcade a { color: var(--arc-sky); }
+.arcade ul { margin: 8px 0; padding-left: 0; list-style: none; }
+.arcade li { margin: 10px 0; padding-left: 40px; position: relative; }
+.arcade li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: .45em;
+  width: 16px;
+  height: 16px;
+  background: var(--arc-blue);
+  box-shadow: 4px 4px 0 var(--arc-pink);
+}
+
+.arcade :not(pre) > code {
+  font-family: var(--arc-mono);
+  font-size: .88em;
+  color: var(--arc-yellow);
+  background: var(--arc-panel);
+  border: 2px solid var(--arc-line);
+  padding: 0 .3em;
+}
+/* Code = RPG dialog box: double pixel border, name tab, blinking ▼. */
+.arcade pre, .arcade .shiki, .arcade .slidev-code {
+  font-family: var(--arc-mono) !important;
+  font-size: 22px !important;
+  line-height: 1.5 !important;
+  background: #0b1b2b !important;
+  color: #e8f6fb;
+  border: 4px solid #ffffff;
+  outline: 4px solid #04121c;
+  border-radius: 0 !important;
+  box-shadow: 8px 8px 0 #04121c;
+  margin: 8px 0;
+}
+.arcade pre code { padding: 18px 24px; display: block; }
+.arcade .dialog { position: relative; margin-top: 18px; }
+.arcade .dialog::before {
+  content: attr(data-name);
+  position: absolute; z-index: 2; top: -16px; left: 18px;
+  padding: 2px 12px;
+  font: 700 18px var(--arc-pixel); letter-spacing: .1em; text-transform: uppercase;
+  color: #0b1b2b; background: var(--arc-yellow);
+  outline: 4px solid #04121c;
+}
+.arcade .dialog::after {
+  content: '▼';
+  position: absolute; right: 18px; bottom: 6px;
+  font: 16px var(--arc-mono); color: var(--arc-yellow);
+  animation: nudge 800ms steps(2, jump-none) infinite;
+}
+@keyframes nudge { 50% { transform: translateY(4px) } }
+/* Focus = dim the other lines; no bars or tints. */
+.arcade .slidev-code .line { transition: opacity 160ms steps(2, end); }
+.arcade .slidev-code-dishonored, .arcade .dishonored { opacity: .28; }
+.arcade .code-sm :is(pre, .shiki, .slidev-code) { font-size: 18px !important; line-height: 1.36 !important; }
+.arcade .code-sm pre code { padding: 12px 18px; }
+.arcade .slidev-code-wrapper { margin: 0; }
+
+.arcade table { border-collapse: collapse; font-size: 24px; }
+.arcade th { font: 700 20px var(--arc-pixel); color: var(--arc-yellow); text-align: left; letter-spacing: .06em; }
+.arcade th, .arcade td { padding: 8px 18px; border-bottom: 2px dashed var(--arc-line); }
+
+/* Pixel "cartridge" callout */
+.arcade .cart {
+  border: 3px solid var(--arc-yellow);
+  background: #2b2a1066;
+  box-shadow: 6px 6px 0 var(--arc-shadow);
+  padding: 12px 20px;
+}
+.arcade .traps .cart { line-height: 1.35; }
+.arcade .traps .cart p { margin: 10px 0 4px; line-height: 1.4 !important; font-size: 26px; }
+.arcade .traps h3 { margin-bottom: 4px; }
+/* Yu-Gi-Oh nod: each trap is a face-up trap card. */
+.arcade .traps .cart { position: relative; }
+.arcade .traps .cart::after {
+  content: 'TRAP ↯'; position: absolute; top: -14px; right: 14px; padding: 2px 10px;
+  font: 700 18px var(--arc-pixel); letter-spacing: .12em; color: #fff;
+  background: #9c2f6e; outline: 3px solid #04121c; box-shadow: 3px 3px 0 #04121c;
+}
+.arcade .cart.pink { border-color: var(--arc-pink); background: #3a183066; }
+.arcade .tag {
+  display: inline-block;
+  font: 500 18px var(--arc-pixel);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  color: #0b1b2b;
+  background: var(--arc-yellow);
+}
+.arcade .tag.blue { background: var(--arc-blue); }
+.arcade .tag.pink { background: var(--arc-pink); color: #fff; }
+.arcade .muted { color: var(--arc-muted); }
+.arcade .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+.arcade .grid-2-wide { display: grid; grid-template-columns: 3fr 2fr; gap: 36px; align-items: center; }
+.arcade .mermaid { display: flex; justify-content: center; }
+
+/* Cover */
+.arcade.cover .arcade-body { align-items: flex-start; }
+.arcade.cover h1 { font-size: 104px; max-width: 13ch; }
+.arcade .press-start {
+  font: 500 26px var(--arc-pixel);
+  color: var(--arc-yellow);
+  letter-spacing: .12em;
+  animation: blink 1s steps(2, jump-none) infinite;
+}
+@keyframes blink { 50% { opacity: 0 } }
+
+/* Section = "next level": underground world card behind a warp-pipe intro. */
+.arcade.section {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='32' shape-rendering='crispEdges'%3E%3Crect width='64' height='32' fill='%23050a14'/%3E%3Cg fill='%231f4f8f'%3E%3Crect x='1' y='1' width='30' height='14'/%3E%3Crect x='33' y='1' width='30' height='14'/%3E%3Crect x='-15' y='17' width='30' height='14'/%3E%3Crect x='17' y='17' width='30' height='14'/%3E%3Crect x='49' y='17' width='30' height='14'/%3E%3C/g%3E%3Cg fill='%235dc9e2'%3E%3Crect x='1' y='1' width='30' height='2'/%3E%3Crect x='33' y='1' width='30' height='2'/%3E%3Crect x='17' y='17' width='30' height='2'/%3E%3C/g%3E%3C/svg%3E") left bottom / 64px 32px repeat-x,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='32' shape-rendering='crispEdges'%3E%3Crect width='64' height='32' fill='%23050a14'/%3E%3Cg fill='%23163a6b'%3E%3Crect x='1' y='1' width='30' height='14'/%3E%3Crect x='33' y='1' width='30' height='14'/%3E%3Crect x='-15' y='17' width='30' height='14'/%3E%3Crect x='17' y='17' width='30' height='14'/%3E%3Crect x='49' y='17' width='30' height='14'/%3E%3C/g%3E%3C/svg%3E") left top / 64px 32px repeat-x,
+    radial-gradient(#5dc9e21f 2px, transparent 2.5px) 0 0 / 48px 48px,
+    #0a1020 !important;
+}
+.arcade.section::before { display: none; }
+.arcade.section .arcade-top { margin-top: 20px; }
+.arcade.section .arcade-footer { margin-bottom: 26px; }
+.arcade.section .arcade-body { align-items: center; text-align: center; }
+.arcade.section .intermission { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.arcade.section .world { font: 700 34px var(--arc-pixel); letter-spacing: .3em; color: var(--arc-yellow); text-shadow: 3px 3px 0 #000; margin: 0; }
+.arcade.section h1 { font-size: 88px; color: #ffffff; text-shadow: 5px 5px 0 var(--arc-pink); margin: 12px 0; }
+.arcade.section .intermission p { color: #ffffff; opacity: 1; }
+.arcade.section .lives { display: flex; align-items: center; gap: 18px; font: 700 34px var(--arc-pixel); color: #ffffff; margin-top: 18px; }
+.arcade.section .lives svg { filter: none !important; }
+.arcade.section :is(.arcade-top, .arcade-footer) { color: #ffffff; }
+.arcade.section .arcade-bar i { background: #1f2a44; }
+.arcade.section .arcade-bar i.on { background: var(--arc-yellow); box-shadow: none; }
+.arcade.section .intermission > * { animation: pop-in 400ms steps(4, end) both; animation-delay: 1500ms; }
+.arcade.section .intermission > :nth-child(2) { animation-delay: 1700ms; }
+.arcade.section .intermission > :nth-child(3) { animation-delay: 1900ms; }
+@keyframes pop-in { from { opacity: 0; transform: scale(.6) } }
+
+/* Warp intro: overworld sky, gopher sinks into the pipe, iris closes on it. */
+.arcade .warp {
+  position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='32' shape-rendering='crispEdges'%3E%3Crect width='64' height='32' fill='%231a2433'/%3E%3Cg fill='%23ce3262'%3E%3Crect x='1' y='1' width='30' height='14'/%3E%3Crect x='33' y='1' width='30' height='14'/%3E%3Crect x='-15' y='17' width='30' height='14'/%3E%3Crect x='17' y='17' width='30' height='14'/%3E%3Crect x='49' y='17' width='30' height='14'/%3E%3C/g%3E%3C/svg%3E") left bottom / 64px 32px repeat-x,
+    #2c5cc5;
+  animation: iris 600ms steps(8, end) 1000ms both;
+}
+.arcade .warp-pipe { position: absolute; left: 50%; bottom: 32px; transform: translateX(-50%); width: 168px; height: 200px; z-index: 2; }
+.arcade .warp-pipe i { position: absolute; display: block; border: 6px solid #04121c; }
+.arcade .warp-pipe .lip { left: 0; right: 0; top: 0; height: 56px; background: linear-gradient(90deg, #46c84a 0 18%, #2fa33a 18% 70%, #18702a 70%); }
+.arcade .warp-pipe .body { left: 14px; right: 14px; top: 50px; bottom: 0; border-top: 0; background: linear-gradient(90deg, #46c84a 0 18%, #2fa33a 18% 70%, #18702a 70%); }
+.arcade .warp-gopher {
+  position: absolute; left: 50%; bottom: 220px; z-index: 1; transform: translateX(-50%);
+  animation: warp-sink 700ms steps(7, end) 300ms both;
+}
+.arcade .warp-gopher svg { filter: none !important; }
+@keyframes warp-sink {
+  0% { transform: translate(-50%, 0) }
+  15% { transform: translate(-50%, -24px) }
+  100% { transform: translate(-50%, 140px) }
+}
+@keyframes iris {
+  from { clip-path: circle(150% at 50% 78%) }
+  to { clip-path: circle(0 at 50% 78%) }
+}
+
+/* Arcade odds and ends */
+.arcade .combo-badge {
+  display: inline-block; font: 700 26px var(--arc-pixel); letter-spacing: .08em;
+  color: #0b1b2b; background: var(--arc-yellow); padding: 4px 14px;
+  outline: 4px solid #04121c; box-shadow: 6px 6px 0 #04121c; transform: rotate(-4deg);
+}
+.arcade .glitch { position: relative; display: inline-block; animation: glitch 1.6s steps(1, end) infinite; }
+@keyframes glitch {
+  0%, 86%, 100% { transform: none; text-shadow: 4px 4px 0 var(--arc-shadow); }
+  88% { transform: translate(-4px, 2px); text-shadow: -4px 0 #ff3b5c, 4px 0 #00add8; }
+  92% { transform: translate(4px, -2px); text-shadow: 4px 0 #ff3b5c, -4px 0 #00add8; }
+}
+.arcade .game-over { display: inline-block; font: 700 64px var(--arc-pixel); color: #ff5c78; background: #000; padding: 6px 18px; outline: 4px solid #04121c; letter-spacing: .08em; }
+.arcade .game-over .muted { color: #d8e6ee; }
+.arcade .hint-box {
+  font: 600 22px var(--arc-mono); color: #e8f6fb; background: #0b1b2b; padding: 10px 16px;
+  border: 4px solid #ffffff; outline: 4px solid #04121c; box-shadow: 6px 6px 0 #04121c;
+}
+.arcade .hint-box b { color: var(--arc-yellow); }
+
+/* Statement */
+.arcade.statement .arcade-body { align-items: center; text-align: center; }
+.arcade.statement h1 { font-size: 72px; max-width: 18ch; }
+
+.slidev-vclick-target { transition: opacity 180ms steps(3, end); }
+
+@media (prefers-reduced-motion: reduce) {
+  .arcade.cover .press-start, .arcade .glitch, .arcade .dialog::after,
+  .arcade.section .intermission > * { animation: none; }
+  .arcade .warp { display: none; }
+  .slidev-vclick-target { transition-duration: 0ms !important; }
+}
+
+/* Mermaid: pixel boxes in theme colours (overrides Slidev's default palette). */
+.arcade .mermaid svg { max-height: 470px; width: auto; }
+.arcade .mermaid :is(.node rect, .node polygon, .node circle, .node path) {
+  fill: var(--arc-panel) !important;
+  stroke: var(--arc-blue) !important;
+  stroke-width: 3px !important;
+  rx: 0 !important;
+}
+.arcade .mermaid .nodeLabel, .arcade .mermaid .edgeLabel, .arcade .mermaid text {
+  color: var(--arc-ink) !important;
+  fill: var(--arc-ink) !important;
+  font-family: var(--arc-mono) !important;
+}
+.arcade .mermaid .edgeLabel, .arcade .mermaid .edgeLabel rect { background: var(--arc-bg) !important; fill: var(--arc-bg) !important; color: var(--arc-yellow) !important; }
+.arcade .mermaid .flowchart-link { stroke: var(--arc-sky) !important; stroke-width: 2px !important; }
+.arcade .mermaid marker path { fill: var(--arc-sky) !important; stroke: var(--arc-sky) !important; }
+
+/* Overworld: sky, pixel clouds, hills and a brick ground strip.
+   :root prefix keeps these after same-specificity layout rules. */
+:root .slidev-layout.arcade::before {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='32' shape-rendering='crispEdges'%3E%3Crect width='64' height='32' fill='%231a2433'/%3E%3Cg fill='%23ce3262'%3E%3Crect x='1' y='1' width='30' height='14'/%3E%3Crect x='33' y='1' width='30' height='14'/%3E%3Crect x='-15' y='17' width='30' height='14'/%3E%3Crect x='17' y='17' width='30' height='14'/%3E%3Crect x='49' y='17' width='30' height='14'/%3E%3C/g%3E%3Cg fill='%23ff7aa2'%3E%3Crect x='1' y='1' width='30' height='2'/%3E%3Crect x='33' y='1' width='30' height='2'/%3E%3Crect x='17' y='17' width='30' height='2'/%3E%3C/g%3E%3C/svg%3E") left bottom / 64px 32px repeat-x,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='120' shape-rendering='crispEdges'%3E%3Cg fill='%23189a3c'%3E%3Crect x='20' y='72' width='160' height='48'/%3E%3Crect x='44' y='48' width='112' height='24'/%3E%3Crect x='76' y='32' width='48' height='16'/%3E%3Crect x='360' y='88' width='112' height='32'/%3E%3Crect x='384' y='72' width='64' height='16'/%3E%3C/g%3E%3Cg fill='%2346c84a'%3E%3Crect x='76' y='32' width='48' height='4'/%3E%3Crect x='44' y='48' width='32' height='4'/%3E%3Crect x='384' y='72' width='64' height='4'/%3E%3C/g%3E%3C/svg%3E") left calc(100% - 32px) / 560px 120px repeat-x,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' shape-rendering='crispEdges'%3E%3Cg fill='%23ffffff' opacity='.9'%3E%3Crect x='1120' y='96' width='96' height='16'/%3E%3Crect x='1136' y='80' width='64' height='16'/%3E%3Crect x='1152' y='64' width='32' height='16'/%3E%3Crect x='0' y='300' width='40' height='16'/%3E%3Crect x='0' y='284' width='24' height='16'/%3E%3Crect x='1232' y='420' width='48' height='16'/%3E%3Crect x='1248' y='404' width='32' height='16'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+}
+:root .arcade h1, :root .arcade h2 { text-shadow: 4px 4px 0 var(--arc-shadow); }
+:root .arcade-player, :root .arcade-kicker { color: #fff; text-shadow: 2px 2px 0 #000; }
+:root .arcade-footer { color: #fff; position: relative; top: 4px; }
+:root .arcade-bar i { background: #1d3d6b; }
+:root .arcade-bar i.on { background: var(--arc-yellow); box-shadow: none; }
+:root .arcade li::before { background: var(--arc-yellow); box-shadow: 4px 4px 0 var(--arc-shadow); }
+:root .arcade .muted { color: #eaf2ff; }
+:root .arcade table td { background: #0b1b2bcc; }
+:root .arcade .cart { background: var(--arc-panel); }
+
+/* HUD: hearts + coin counter. */
+.arcade-player { display: inline-flex; align-items: center; gap: 16px; }
+.hud-hearts { display: inline-flex; gap: 4px; }
+.hud-hearts svg { fill: #ff5c78; filter: drop-shadow(2px 2px 0 #000); }
+.hud-hearts svg.empty { fill: #1d3d6b; animation: hurt 400ms steps(2, jump-none) 3; }
+.hud-hearts.heal svg { animation: heal 300ms steps(2, jump-none) 4 1.6s; }
+@keyframes hurt { 50% { fill: #fff } }
+@keyframes heal { 50% { fill: #fff } }
+.hud-coins { display: inline-flex; align-items: center; gap: 6px; }
+.hud-coins i { width: 12px; height: 16px; background: var(--arc-yellow); outline: 2px solid #000; box-shadow: inset -4px 0 0 #c9a800; }
+
+/* Background critters, behind content (z-index 0), overworld only.
+   Each lives off-screen most of its 40 s loop and crosses once. */
+:root .arcade > .arcade-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.arcade-bg i { position: absolute; display: block; animation-delay: var(--bg-delay) !important; }
+.arcade.section .arcade-bg :is(.bg-ufo, .bg-duck, .bg-ghost) { display: none; }
+/* Mystery ship along the very top. */
+.bg-ufo {
+  top: 6px; left: 0; width: 48px; height: 14px; background:
+    linear-gradient(#ff5c78, #ff5c78) 12px 0 / 24px 4px no-repeat,
+    linear-gradient(#ff5c78, #ff5c78) 4px 4px / 40px 6px no-repeat,
+    linear-gradient(#ff5c78, #ff5c78) 0 8px / 48px 2px no-repeat,
+    repeating-linear-gradient(90deg, #ff5c78 0 6px, transparent 6px 14px) 4px 10px / 40px 4px no-repeat;
+  animation: bg-ufo 40s linear infinite;
+}
+@keyframes bg-ufo { 0%, 50% { transform: translateX(-80px) } 62%, 100% { transform: translateX(1360px) } }
+/* Duck flushed out of the right-hand hills, flapping up and off the top. */
+.bg-duck { right: 30px; bottom: 120px; width: 36px; height: 24px; animation: bg-duck 40s steps(60, end) infinite; }
+.bg-duck::before, .bg-duck::after { content: ''; position: absolute; }
+.bg-duck::before { /* body + head */
+  left: 6px; top: 8px; width: 22px; height: 12px; background: #3b2416;
+  box-shadow: 18px -6px 0 -2px #189a3c, 26px -4px 0 -4px var(--arc-yellow);
+}
+.bg-duck::after { /* wing */
+  left: 10px; top: 0; width: 12px; height: 10px; background: #fff; outline: 2px solid #04121c;
+  animation: bg-flap 240ms steps(2, jump-none) infinite;
+}
+@keyframes bg-duck { 0%, 30% { transform: translate(0, 0); opacity: 0 } 31% { opacity: 1 } 34% { transform: translate(-60px, -120px) } 37% { transform: translate(20px, -260px) } 40% { transform: translate(-80px, -520px); opacity: 1 } 41%, 100% { opacity: 0 } }
+@keyframes bg-flap { 50% { transform: translateY(10px) scaleY(.4) } }
+/* Ghost wandering along the bricks. */
+.bg-ghost {
+  bottom: 3px; left: 0; width: 22px; height: 22px; background: #ff7aa2; border-radius: 11px 11px 0 0;
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% 18px no-repeat, repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 7px) bottom / 100% 4px no-repeat;
+  mask: linear-gradient(#000 0 0) top / 100% 18px no-repeat, repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 7px) bottom / 100% 4px no-repeat;
+  animation: bg-ghost 40s linear infinite;
+}
+.bg-ghost::before { content: ''; position: absolute; left: 4px; top: 6px; width: 5px; height: 6px; background: #fff; box-shadow: 9px 0 0 #fff; }
+@keyframes bg-ghost { 0% { transform: translateX(1320px) } 100% { transform: translateX(-60px) } }
+/* ? block in the left margin; already hit (empty) underground. */
+.bg-qblock {
+  left: 14px; top: 170px; width: 32px; height: 32px; background: var(--arc-yellow); outline: 3px solid #04121c;
+  box-shadow: inset -4px -4px 0 #c9a800, 4px 4px 0 #04121c; animation: bg-bob 1.2s steps(2, jump-none) infinite;
+}
+.bg-qblock::before { content: '?'; position: absolute; inset: 0; display: grid; place-items: center; font: 700 24px var(--arc-pixel); color: #04121c; }
+.bg-qblock.hit { background: #8a5a2b; box-shadow: inset -4px -4px 0 #5a3a1b; animation: none; }
+.bg-qblock.hit::before { content: ''; }
+@keyframes bg-bob { 50% { transform: translateY(-3px) } }
+@media (prefers-reduced-motion: reduce) { .arcade-bg i, .hud-hearts svg { animation: none !important } .arcade-bg :is(.bg-ufo, .bg-duck, .bg-ghost) { display: none } }

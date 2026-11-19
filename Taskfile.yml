@@ -7,9 +7,14 @@ tasks:
       - pnpm lint
       - nixfmt --check flake.nix
 
+  fonts:
+    cmds:
+      - sh scripts/fetch-fonts.sh
+
   build:
     cmds:
       - pnpm install --frozen-lockfile
+      - task: fonts
       - node scripts/build.mjs
 
   pages:

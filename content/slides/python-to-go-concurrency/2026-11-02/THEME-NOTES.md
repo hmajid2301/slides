@@ -7,7 +7,7 @@ recovered from the 2026-11-04 Pi comparison session. Dark is the default.
 - Dark: paper `#281f1a`, ink `#f4e8da`, accent `#f0aa7d`, muted `#cbb6a2`, surface `#382a22`, border `#896a54`, selection `#4c3326`.
 
 Radio Canada Big carries the explanation; Source Serif 4 marks sections and
-statements; Geist Mono carries code and metadata. Typography and animations
+statements; MonoLisa carries code and metadata. Typography and animations
 are unchanged. Shiki uses `github-light` / `github-dark`, matching the original
 Fireside comparison. Both presets are available in the opt-in picker.
 No upstream dependency, brand marks, portraits or assets are introduced.

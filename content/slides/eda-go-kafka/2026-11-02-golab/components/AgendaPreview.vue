@@ -164,28 +164,28 @@ const realityStops = [
 .chapter { display: grid; grid-template-columns: 60px 1fr; gap: 25px; padding: 26px 0; border-bottom: 1px solid #313244; align-items: start; }
 .chapter:first-child { padding-top: 0; }
 .chapter:last-child { border-bottom: 0; padding-bottom: 0; }
-.chapter-number { color: var(--accent); font-size: 32px; line-height: 1.2; font-family: 'MonoLisa', monospace; }
+.chapter-number { color: var(--accent); font-size: 32px; line-height: 1.2; font-family: 'MonoLisa', 'JetBrains Mono', monospace; }
 .chapter h3 { font-size: 29px; }
 .chapter p { font-size: 18px; margin-top: 6px; }
 /* A log-shaped agenda, not an extra architecture diagram. */
 .log-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 28px; }
 .log-heading .eyebrow { margin-bottom: 12px; }
-.log-topic { color: #94e2d5; font-family: 'MonoLisa', monospace; font-size: 18px; padding-bottom: 6px; }
+.log-topic { color: #94e2d5; font-family: 'MonoLisa', 'JetBrains Mono', monospace; font-size: 18px; padding-bottom: 6px; }
 .log-labels, .record { display: grid; grid-template-columns: 100px 1fr 210px; gap: 24px; align-items: center; }
 .log-labels { color: #6c7086; font-size: 15px; padding: 0 28px 14px; text-transform: uppercase; letter-spacing: .08em; }
 .record { position: relative; background: #181825; border: 1px solid #313244; border-left: 4px solid var(--accent); padding: 12px 26px; margin-bottom: 8px; }
-.offset { color: var(--accent); font-family: 'MonoLisa', monospace; font-size: 29px; }
+.offset { color: var(--accent); font-family: 'MonoLisa', 'JetBrains Mono', monospace; font-size: 29px; }
 .record h3 { font-size: 24px; }
 .record p { font-size: 17px; margin-top: 5px; }
 .record-tag { color: var(--accent); font-family: 'Patrick Hand', cursive; font-size: 25px; }
 .log-footer { display: flex; justify-content: space-between; color: #a6adc8; margin-top: 25px; font-size: 18px; }
-.log-footer > :first-child, .log-footer > :last-child { color: #6c7086; font-family: 'MonoLisa', monospace; font-size: 14px; }
+.log-footer > :first-child, .log-footer > :last-child { color: #6c7086; font-family: 'MonoLisa', 'JetBrains Mono', monospace; font-size: 14px; }
 /* Four questions, readable at a glance from the back row. */
 .agenda-questions { padding: 10px 0; }
 .questions { margin-top: 40px; }
 .question { display: grid; grid-template-columns: 80px 1fr; align-items: center; gap: 20px; padding: 22px 0; border-bottom: 1px solid #313244; }
 .question:last-child { border-bottom: 0; }
-.question-number { color: var(--accent); font-family: 'MonoLisa', monospace; font-size: 27px; }
+.question-number { color: var(--accent); font-family: 'MonoLisa', 'JetBrains Mono', monospace; font-size: 27px; }
 .question h3 { font-size: 43px; letter-spacing: -.025em; }
 /* An abstract chapter route, not a Kafka processing diagram. */
 .reality-canvas { position: relative; width: 1100px; height: 440px; margin-top: 22px; }
@@ -205,9 +205,9 @@ const realityStops = [
 .chapter-sketch { width: 100px; height: 100px; fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .panel-tag { display: block; color: #a6adc8; font-family: 'Patrick Hand', cursive; font-size: 24px; margin-bottom: 10px; }
 .sketch-panel h3 { font-size: 29px; }
-.panel-number { position: absolute; top: 15px; right: 22px; color: var(--accent); font-family: 'MonoLisa', monospace; font-size: 15px; }
+.panel-number { position: absolute; top: 15px; right: 22px; color: var(--accent); font-family: 'MonoLisa', 'JetBrains Mono', monospace; font-size: 15px; }
 /* Plain-text tree, without a fake app window or typing animation. */
-.terminal-outline { margin-top: 35px; padding: 0 0 0 32px; border-left: 3px solid #313244; font-family: 'MonoLisa', 'Noto Sans Mono', monospace; }
+.terminal-outline { margin-top: 35px; padding: 0 0 0 32px; border-left: 3px solid #313244; font-family: 'MonoLisa', 'JetBrains Mono', 'Noto Sans Mono', monospace; }
 .terminal-prompt { font-size: 23px; color: #bac2de; margin-bottom: 25px; }
 .terminal-prompt span { color: #94e2d5; }
 .terminal-root { font-size: 28px; color: #bac2de; margin-bottom: 16px; }

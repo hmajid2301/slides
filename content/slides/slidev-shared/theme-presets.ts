@@ -21,4 +21,5 @@ export const themePresets = [
   { id: 'ledger', name: 'Engineering Ledger', dark: false },
   { id: 'terracotta', name: 'Terracotta Lecture', dark: true },
   { id: 'arctic', name: 'Arctic Air', dark: false },
+  { id: 'arcade', name: 'Gopher Arcade', dark: true },
 ]

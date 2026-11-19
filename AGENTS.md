@@ -12,6 +12,12 @@
 - Decks live at `content/slides/<topic>/<YYYY-MM-DD>-<event>/slides.md`.
   Omit the event suffix when no event is recorded. Each edition owns its assets and demos.
 - Shared Slidev components, themes and add-ons live in `content/slides/slidev-shared/`.
+- Monospace is MonoLisa, falling back to JetBrains Mono. Slidev imports
+  `slidev-shared/styles/monolisa.css`; Reveal themes import `static/slides/stylesheets/monolisa.css`.
+  The licensed woff2 files are never committed (`**/fonts/monolisa/` is ignored):
+  `task build` runs `scripts/fetch-fonts.sh`, which copies them from the private
+  `nixicle-assets` repo (`$NIXICLE_ASSETS`, `../nixicle-assets`, or a CI job-token clone).
+  Without them the build still passes and decks use the fallback.
 - `data/slide_redirects.json` uses `new` for both source directories and published
   edition URLs; `old` is permanent compatibility metadata. Keep it in sync with
   the blog's `data/slide_redirects.toml`. Never redirect historical editions to “latest”.

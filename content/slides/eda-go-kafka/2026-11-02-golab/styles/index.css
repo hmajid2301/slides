@@ -80,7 +80,7 @@
 .slidev-layout .mermaid .flowchart-link { stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
 
 .event-name-breakdown {
-  font-family: 'MonoLisa', monospace;
+  font-family: 'MonoLisa', 'JetBrains Mono', monospace;
   font-size: 28px;
   line-height: 1.5;
   white-space: nowrap;

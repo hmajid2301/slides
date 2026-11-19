@@ -14,3 +14,6 @@
 !/static/slides/stylesheets/
 !/static/slides/highlight-js/
 !/static/slides/reveal-init.js
+
+# Licensed MonoLisa webfont: fetched at build time by scripts/fetch-fonts.sh, never committed.
+**/fonts/monolisa/

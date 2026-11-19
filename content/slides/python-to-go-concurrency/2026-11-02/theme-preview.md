@@ -16,7 +16,7 @@ twoslash: false
 fonts:
   provider: none
   sans: 'Poppins, Noto Sans, sans-serif'
-  mono: 'MonoLisa, Noto Sans Mono, Liberation Mono, monospace'
+  mono: 'MonoLisa, JetBrains Mono, Noto Sans Mono, Liberation Mono, monospace'
   local: MonoLisa
 defaults:
   layout: default

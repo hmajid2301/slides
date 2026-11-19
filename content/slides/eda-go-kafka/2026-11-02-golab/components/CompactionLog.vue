@@ -67,7 +67,7 @@ function opacity(index: number) {
 svg { display: block; width: 1100px; height: 470px; overflow: hidden; font: 32px 'Patrick Hand', 'Poppins', sans-serif; }
 text { fill: currentColor; }
 .small { font-size: 28px; }
-.record-key { font: 18px 'MonoLisa', monospace; }
+.record-key { font: 18px 'MonoLisa', 'JetBrains Mono', monospace; }
 .event-id { font-size: 26px; font-weight: 700; }
 .record { transition: opacity 650ms ease, transform 650ms ease; }
 .blue { color: #89b4fa; }

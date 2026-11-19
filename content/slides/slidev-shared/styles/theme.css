@@ -1,3 +1,4 @@
+@import './monolisa.css';
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Poppins:wght@400;700&family=Roboto:wght@400;700&display=swap');
 
 :root {
@@ -39,8 +40,8 @@ body { font-family: 'Poppins', sans-serif; color: var(--ctp-text); text-renderin
 .slidev-layout table { margin: auto; border-collapse: collapse; border-spacing: 0; }
 .slidev-layout table th { font-weight: 700; color: var(--ctp-lavender); background: rgba(49,50,68,.45); }
 .slidev-layout table th, .slidev-layout table td { text-align: left; padding: 0.28em 0.6em; border-bottom: 1px solid var(--ctp-surface1); }
-.slidev-layout :not(pre) > code { font-family: 'MonoLisa', 'Noto Sans Mono', 'Liberation Mono', monospace; color: var(--ctp-peach); background: rgba(49,50,68,.72); border: 1px solid rgba(88,91,112,.45); padding: .1rem .35rem; border-radius: .35rem; }
-.slidev-layout code, .slidev-layout pre, .shiki { font-family: 'MonoLisa', 'Noto Sans Mono', 'Liberation Mono', monospace !important; }
+.slidev-layout :not(pre) > code { font-family: 'MonoLisa', 'JetBrains Mono', 'Noto Sans Mono', 'Liberation Mono', monospace; color: var(--ctp-peach); background: rgba(49,50,68,.72); border: 1px solid rgba(88,91,112,.45); padding: .1rem .35rem; border-radius: .35rem; }
+.slidev-layout code, .slidev-layout pre, .shiki { font-family: 'MonoLisa', 'JetBrains Mono', 'Noto Sans Mono', 'Liberation Mono', monospace !important; }
 .slidev-layout pre, .shiki { width: 100%; margin: 12px auto; padding: 0 !important; text-align: left; font-size: 24px; line-height: 1.4; background: var(--ctp-code-bg) !important; border: 1px solid var(--ctp-surface1); box-shadow: none; border-radius: .6rem; }
 .slidev-layout pre code, .shiki code { display: block; padding: 20px 24px; overflow: visible; max-height: none; white-space: pre; font-size: inherit !important; line-height: inherit !important; }
 .slidev-layout.code-lg, .slidev-layout.code-fit { background: #1e1e2e; }

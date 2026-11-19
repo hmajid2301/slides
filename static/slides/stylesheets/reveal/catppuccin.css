@@ -1,3 +1,4 @@
+@import url(../monolisa.css);
 @import url(https://fonts.googleapis.com/css?family=Poppins:400,700);
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,700);
 
@@ -27,7 +28,7 @@ html * {
   --r-heading2-size: 2em;
   --r-heading3-size: 1.55em;
   --r-heading4-size: 1em;
-  --r-code-font: monospace;
+  --r-code-font: "MonoLisa", "JetBrains Mono", monospace;
   --r-link-color: #89dceb;
   --r-link-color-dark: #89dceb;
   --r-link-color-hover: #f2cdcd;

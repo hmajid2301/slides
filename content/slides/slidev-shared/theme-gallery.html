@@ -2,7 +2,7 @@
 <html lang="en" data-register="editorial">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Python → Go · twenty theme studies</title>
+<title>Python → Go · twenty-one theme studies</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Cpath d='M18 40V24l14-8 14 8v16l-14 8-14-8Z' fill='none' stroke='%23fbbf24' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%2338bdf8'/%3E%3C/svg%3E">
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -304,7 +304,7 @@ summary { cursor: pointer; font: 500 var(--t-label) var(--font-mono); margin-bot
   .ve-tok, .ve-vals text:not(:last-child) { display: none; }
 }
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Pixelify+Sans:wght@500;700&display=swap">
 <style>
 :root { --bg:#f4f3ef; --surface:#eae9e3; --text:#202b30; --text-dim:#526168; --accent:#006a80; }
 body { margin:0; }
@@ -400,6 +400,9 @@ button:focus-visible,a:focus-visible { outline:3px solid #007d97; outline-offset
 .arctic { --paper:#f0f8fa; --panel:#e0eef2; --ink:#143c48; --muted:#426771; --signal:#006b7f; --line:#80adb7; --face:'DM Sans',sans-serif; --mono:'JetBrains Mono',monospace; --round:2cqw; --node-radius:14; }
 .arctic .deck-title { font-size:8.5cqw; font-weight:500; letter-spacing:-.05em; }
 .arctic .pair { gap:5cqw; }
+.arcade { --paper:#2c5cc5; --panel:#0b1b2b; --ink:#ffffff; --muted:#eaf2ff; --signal:#fddd00; --line:#1d3d6b; --face:'DM Sans',sans-serif; --display:'Pixelify Sans',monospace; --mono:'JetBrains Mono',monospace; background-image:linear-gradient(#ce3262,#ce3262); background-size:100% 3%; background-position:bottom; background-repeat:no-repeat; }
+.arcade h3 { text-shadow:.4cqw .4cqw 0 var(--panel); }
+.arcade pre, .arcade svg rect { border-width:3px; }
 .study.chosen .slide { outline:3px solid #006b82; outline-offset:4px; }
 .notes { margin-top:48px; border-top:1px solid #b2b9b9; padding-top:20px; font-size:14px; max-width:75ch; }
 @media(max-width:850px) { main { padding:20px; } header,.gallery,.gallery.all .previews { grid-template-columns:1fr; } #selection { width:100%; margin:0; } .toolbar { position:relative; } }
@@ -416,11 +419,11 @@ button:focus-visible,a:focus-visible { outline:3px solid #007d97; outline-offset
   </defs>
 </svg>
 <main>
-<header><div><p class="eyebrow">Python → Go / design studies</p><h1>One talk. Twenty directions.</h1><p>Four example slides per theme. Compare typography, code, columns, and diagrams.</p></div><p>Start with <strong>Go Workshop</strong> for teaching clarity, or <strong>Catppuccin Refined</strong> to match Kafka.</p></header>
+<header><div><p class="eyebrow">Python → Go / design studies</p><h1>One talk. Twenty-one directions.</h1><p>Four example slides per theme. Compare typography, code, columns, and diagrams.</p></div><p>Start with <strong>Go Workshop</strong> for teaching clarity, or <strong>Catppuccin Refined</strong> to match Kafka.</p></header>
 <nav class="toolbar" aria-label="Slide sample"><span>Preview</span><button data-sample="all" aria-pressed="true">All four slides</button><button data-sample="cover" aria-pressed="false">Cover</button><button data-sample="comparison" aria-pressed="false">Python / Go</button><button data-sample="http" aria-pressed="false">HTTP code</button><button data-sample="flow" aria-pressed="false">Request flow</button><span id="selection" role="status">No theme selected</span></nav>
 <nav id="theme-links" class="theme-links" aria-label="Jump to theme"></nav>
 <div id="gallery" class="gallery all"></div>
-<noscript>This interactive gallery needs JavaScript to show its twenty theme studies.</noscript>
+<noscript>This interactive gallery needs JavaScript to show its twenty-one theme studies.</noscript>
 <section class="notes"><h2>Pick a direction, not a dependency</h2><p>These are visual prototypes, not installed Slidev themes. Each uses the same content and a 16:9 canvas. Your choice does not change either existing deck. Select a theme to create a bookmarkable URL, then tell me its name.</p><p>Samples adapt the Python/Go talk’s Go 1.22+ HTTP API and Kafka’s diagram-first approach. Fonts use local fallbacks when offline. Syntax colours here are illustrative; the selected theme will need a matching Shiki setup and checks in Slidev.</p></section>
 </main>
 <script>
@@ -444,7 +447,8 @@ const themes = [
  ['botanical','Botanical Notes','Sage paper, forest-green type, serif headings, and outlined topic labels.'],
  ['ledger','Engineering Ledger','Monospace headings, navy ink, and ruled technical labels.'],
  ['terracotta','Terracotta Lecture','Clay-red surfaces and cream serif titles for a warm stage presence.'],
- ['arctic','Arctic Air','Pale blue, open spacing, rounded diagrams, and lighter-weight display type.']
+ ['arctic','Arctic Air','Pale blue, open spacing, rounded diagrams, and lighter-weight display type.'],
+ ['arcade','Gopher Arcade','Platformer sky, pixel display type, navy code panels and yellow power-up highlights.']
 ];
 const samples = {
  cover: `<p class="kicker">Python experience. Go curiosity.</p><h3 class="deck-title">From Python <span>to Go.</span></h3><p>Familiar ideas. Explicit contracts.<br>Your first HTTP service.</p><p class="hint">Haseeb Majid · 30 minutes</p>`,

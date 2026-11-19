@@ -28,6 +28,10 @@
       "new": "reproducible-envs-with-nix/2024-11-13-golab"
     },
     {
+      "old": "go-simd",
+      "new": "go-simd/2026-11-17"
+    },
+    {
       "old": "gophercon-htmx-go-web-app",
       "new": "htmx-go-web-app/2026-08-12-gophercon-uk"
     },

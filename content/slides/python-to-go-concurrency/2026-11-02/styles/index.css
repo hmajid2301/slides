@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Radio+Canada+Big:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Radio+Canada+Big:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600&display=swap');
+@import '../../../slidev-shared/styles/monolisa.css';
 
 /* Original Fireside palettes recovered from the comparison session.
    Shared tokens are also the SVG component API. */
@@ -59,7 +60,7 @@ html, body, #app { background: var(--talk-paper); }
 .slidev-layout h3 { font-size: 30px; font-weight: 600; line-height: 1.2; margin: 0 0 20px; }
 .slidev-layout h4, .slidev-layout h5 { font-size: 28px; }
 .slidev-layout h6, .talk-kicker {
-  font-family: 'Geist Mono', monospace;
+  font-family: 'MonoLisa', 'JetBrains Mono', monospace;
   font-size: 18px;
   font-weight: 500;
   letter-spacing: .06em;
@@ -104,7 +105,7 @@ html, body, #app { background: var(--talk-paper); }
   align-items: center;
   gap: 28px;
   color: var(--talk-muted);
-  font: 500 18px/1.3 'Geist Mono', monospace;
+  font: 500 18px/1.3 'MonoLisa', 'JetBrains Mono', monospace;
 }
 .talk-footer-section { max-width: 52%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .talk-page { flex: none; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -154,7 +155,7 @@ html, body, #app { background: var(--talk-paper); }
   box-shadow: none;
   overflow: visible;
 }
-.slidev-layout code, .slidev-layout pre { font-family: 'Geist Mono', monospace !important; }
+.slidev-layout code, .slidev-layout pre { font-family: 'MonoLisa', 'JetBrains Mono', monospace !important; }
 .slidev-layout pre code {
   display: block;
   padding: 0;
@@ -172,7 +173,7 @@ html.dark .slidev-layout .shiki span { font-style: var(--shiki-dark-font-style, 
 .slidev-layout .slidev-code .line.dim { opacity: .55; }
 .slidev-layout .slidev-code-magic-move .shiki { margin: 0; }
 .talk-terminal-command {
-  font: 500 20px/1.4 'Geist Mono', monospace;
+  font: 500 20px/1.4 'MonoLisa', 'JetBrains Mono', monospace;
   overflow-wrap: anywhere;
   border-top: 2px solid var(--talk-ink);
   border-bottom: 1px solid var(--talk-border);

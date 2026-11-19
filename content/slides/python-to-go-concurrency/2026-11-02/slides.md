@@ -25,7 +25,7 @@ fonts:
   provider: none
   sans: 'Radio Canada Big, sans-serif'
   serif: 'Source Serif 4, Georgia, serif'
-  mono: 'Geist Mono, monospace'
+  mono: 'MonoLisa, JetBrains Mono, monospace'
 drawings:
   enabled: true
   persist: true
