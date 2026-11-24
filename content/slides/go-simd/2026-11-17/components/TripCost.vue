@@ -1,44 +1,40 @@
 <script setup lang="ts">
-// Why more than 8×: every loop trip pays fixed overhead (bounds check + jump).
-// Scalar pays it per float; SIMD pays it once per 8. Both rows show 16 floats.
+// Why ~10× and not 8×: instructions per 8 floats, from the compiled AddScalar vs the hand-written AVX2 loop.
+// Lanes: each load/add/store moves 8 floats. Overhead: the loop's bookkeeping is paid once per 8, not per float.
 withDefaults(defineProps<{ on?: boolean }>(), { on: false })
-const scalarTrips = 16
-const simdTrips = 2
+const rows = [
+  { who: 'scalar', work: ['load 1', 'add 1', 'store 1'], tax: ['i++', 'check', 'bounds', 'bounds'], times: '× 8' },
+  { who: 'simd', work: ['load 8', 'add 8', 'store 8'], tax: ['i++', 'check'], times: '× 1' },
+]
 </script>
 
 <template>
-  <div class="trips" :class="{ on }" aria-label="Scalar: 16 trips, each with an add and overhead. SIMD: 2 trips covering 8 floats each.">
-    <div class="row">
-      <span class="who">scalar</span>
-      <span class="track">
-        <span v-for="t in scalarTrips" :key="t" class="trip" :style="{ animationDelay: `${t * 40}ms` }"><i class="add" /><i class="tax" /></span>
+  <div class="trips" :class="{ on }">
+    <p class="head">per 8 floats</p>
+    <div v-for="r in rows" :key="r.who" class="row">
+      <span class="who">{{ r.who }}</span>
+      <span class="chips">
+        <i v-for="w in r.work" :key="w" class="work">{{ w }}</i>
+        <i v-for="(t, n) in r.tax" :key="n" class="tax">{{ t }}</i>
       </span>
+      <span class="times">{{ r.times }}</span>
     </div>
-    <div class="row">
-      <span class="who">simd</span>
-      <span class="track">
-        <span v-for="t in simdTrips" :key="t" class="trip wide" :style="{ animationDelay: `${t * 40}ms` }"><i class="add" /><i class="tax" /></span>
-      </span>
-    </div>
-    <div class="key"><i class="add" />add <i class="tax" />check + jump</div>
+    <p class="sum"><b>8×</b> from lanes · <b>~2×</b> less loop overhead · <b>≈ 10×</b></p>
   </div>
 </template>
 
 <style scoped>
-.trips { display: grid; gap: 8px; margin-top: 16px; opacity: 0; transition: opacity 160ms steps(2, end); }
+.trips { display: grid; gap: 14px; margin-top: 30px; opacity: 0; transition: opacity 160ms steps(2, end); }
+.trips:not(.on) { display: none; }
 .trips.on { opacity: 1; }
-.row { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 16px; }
+.head { margin: 0 0 0 126px; font: 500 16px var(--arc-pixel); letter-spacing: .1em; text-transform: uppercase; color: var(--arc-muted); }
+.row { display: grid; grid-template-columns: 110px auto 1fr; align-items: center; gap: 16px; }
 .who { font: 700 22px var(--arc-pixel); text-align: right; }
-.track { display: flex; gap: 3px; }
-.trip { display: flex; gap: 2px; }
-.on .trip { animation: in 120ms steps(2, end) both; }
-@keyframes in { from { opacity: 0 } }
-.trip i, .key i { display: inline-block; height: 22px; outline: 2px solid #04121c; }
-.add { width: 14px; background: var(--arc-yellow); }
-.wide .add { width: 128px; }
-.tax { width: 20px; background: var(--arc-pink); }
-.key { display: flex; align-items: center; gap: 8px; margin-left: 126px; font: 500 19px var(--arc-pixel); letter-spacing: .08em; }
-.key i { height: 14px; margin-left: 10px; }
-.key .add { width: 14px; }
-@media (prefers-reduced-motion: reduce) { .on .trip { animation: none } }
+.chips { display: flex; gap: 4px; }
+.chips i { font: 600 17px var(--arc-mono); font-style: normal; padding: 2px 8px; color: #04121c; outline: 2px solid #04121c; }
+.work { background: var(--arc-yellow); }
+.tax { background: var(--arc-pink); color: #fff !important; }
+.times { font: 700 22px var(--arc-pixel); color: var(--arc-yellow); }
+.sum { margin: 6px 0 0 126px; font: 600 20px var(--arc-mono); }
+.sum b { color: var(--arc-yellow); }
 </style>

@@ -1,37 +1,82 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
-// Analogy for "16 lanes ≈ 8 lanes": the chef (the add) chops a batch in a flash, but has to walk
-// to the fridge (L2 cache) for every armful, and can only carry 8 at a time (a 256-bit load path).
-// Clicks: 0 knife ×8: walk, carry 8, chop · 1 knife ×16: two trips for one chop, total barely changes.
-// Timings are scaled from the benchmark ratio (16 per 6.0 s vs 16 per 5.6 s ≈ 329 vs 308 ns).
+// Analogy for "16 lanes ≈ 8 lanes": the chef (the add) chops a whole board in one go, but every
+// tomato has to be grabbed from the fridge (cache) one at a time, and put back one at a time (store). Go simd carries 16 per trip,
+// yet grabbing 16 takes twice as long as grabbing 8: same bytes, same load bandwidth.
+// Clicks: 0 knife ×8 (AVX2 asm) · 1 knife ×16 (Go simd on AVX-512).
+// Animation timings are schematic; the bars use the benchmark numbers (329 vs 308 ns).
 const props = withDefaults(defineProps<{ step?: number }>(), { step: 0 })
 const wide = computed(() => props.step >= 1)
-const carry = 8
+const batch = computed(() => (wide.value ? 16 : 8))
 const rows = [
   { name: '×8', ns: '329 ns', parts: ['fetch', 'chop', 'fetch', 'chop'], from: 0 },
-  { name: '×16', ns: '308 ns', parts: ['fetch', 'fetch', 'chop'], from: 1 },
+  { name: '×16', ns: '308 ns', parts: ['fetch2', 'chop'], from: 1 },
 ]
 
-// Original 5×12 carrot sprites: whole, and sliced into coins with the top cut off.
+// Seconds: per tomato grabbed, per walk, per chop. Ticks at 12 fps for a pixel-art feel.
+const GRAB = 0.3, WALK = 0.4, CHOP = 0.45
+const FRIDGE = 110, BOARD = 830
+const t = ref(0)
+const still = ref(false)
+let t0 = 0
+let timer: ReturnType<typeof setInterval> | undefined
+onMounted(() => {
+  still.value = matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (still.value) return
+  t0 = performance.now()
+  timer = setInterval(() => { t.value = (performance.now() - t0) / 1000 }, 1000 / 12)
+})
+onUnmounted(() => clearInterval(timer))
+watch(wide, () => { t0 = performance.now(); t.value = 0 })
+
+// One loop = load (grab one at a time) → walk → chop → carry back → store (put away one at a time).
+const scene = computed(() => {
+  const b = batch.value
+  const grab = b * GRAB
+  const base = { flip: false, held: 0, heldSliced: false, count: '', board: 0, sliced: false, hop: 0, slam: '' }
+  let s = still.value ? grab + WALK + CHOP * 0.9 : t.value % (2 * grab + 2 * WALK + CHOP)
+  const tick = Math.floor(t.value * 12) % 2
+  if (s < grab) {
+    const n = Math.min(b, Math.floor(s / GRAB) + 1)
+    return { ...base, x: FRIDGE, flip: true, held: n, count: `load ${n}/${b}` }
+  }
+  s -= grab
+  if (s < WALK)
+    return { ...base, x: FRIDGE + (BOARD - FRIDGE) * s / WALK, held: b, hop: tick * -4 }
+  s -= WALK
+  if (s < CHOP) {
+    const down = s > CHOP * 0.4
+    return { ...base, x: BOARD, board: b, sliced: down, hop: down ? 0 : -5, slam: down ? 'down' : 'up' }
+  }
+  s -= CHOP
+  if (s < WALK)
+    return { ...base, x: BOARD - (BOARD - FRIDGE) * s / WALK, flip: true, held: b, heldSliced: true, hop: tick * -4 }
+  s -= WALK
+  const put = Math.min(b, Math.floor(s / GRAB) + 1)
+  return { ...base, x: FRIDGE, flip: true, held: b - put, heldSliced: true, count: `store ${put}/${b}` }
+})
+
+// Original 6×6 tomato sprites: whole, and cut showing pulp and seeds.
 const sprite = (art: string[]) => art.flatMap((r, y) => [...r].flatMap((c, x) =>
-  c === '.' ? [] : [{ x, y, fill: { G: '#46c84a', O: '#ff8a2a', D: '#c45a12' }[c]! }]))
-const whole = sprite(['.G.G.', '..G..', '.GGG.', 'OOOOO', 'ODOOO', '.OOO.', '.OOD.', '.OOO.', '.DOO.', '..O..', '..O..', '.....'])
-const sliced = sprite(['G.G..', '.G...', 'GGG..', '.....', 'OOOOO', 'ODOOO', '.....', '.OOD.', '.OOO.', '.....', '..O..', '..O..'])
+  c === '.' ? [] : [{ x, y, fill: { G: '#46c84a', R: '#e8342a', H: '#ff8a7a', D: '#a81f1a', P: '#ff6b5b', S: '#ffd84a' }[c]! }]))
+const whole = sprite(['..GG..', '.RGGR.', 'RHRRRR', 'RHRRRR', 'RRRRRD', '.RDDD.'])
+const sliced = sprite(['......', '.RRRR.', 'RPSPSR', 'RPPPPR', 'RSPSPR', '.RRRR.'])
 </script>
 
 <template>
-  <div class="kitchen" :class="wide ? 'k16' : 'k8'">
+  <div class="kitchen">
     <div class="stage" aria-hidden="true">
       <div class="fridge"><i /><span>cache</span></div>
       <div class="floor" />
-      <div :key="wide ? 16 : 8" class="chef">
+      <div class="chef" :style="{ transform: `translate(${scene.x}px, ${scene.hop}px)` }">
+        <span v-if="scene.count" class="count">{{ scene.count }}</span>
         <div class="arms">
-          <svg v-for="c in carry" :key="c" viewBox="0 0 5 12" width="10" height="24" shape-rendering="crispEdges">
-            <rect v-for="(p, i) in whole" :key="i" :x="p.x" :y="p.y" width="1" height="1" :fill="p.fill" />
+          <svg v-for="n in scene.held" :key="n" viewBox="0 0 6 6" width="16" height="16" shape-rendering="crispEdges">
+            <rect v-for="(p, i) in (scene.heldSliced ? sliced : whole)" :key="i" :x="p.x" :y="p.y" width="1" height="1" :fill="p.fill" />
           </svg>
         </div>
-        <svg class="body" viewBox="0 0 12 16" width="72" height="96" shape-rendering="crispEdges">
+        <svg class="body" :class="{ flip: scene.flip }" viewBox="0 0 12 16" width="72" height="96" shape-rendering="crispEdges">
           <!-- original pixel chef: hat, face, apron -->
           <rect x="2" y="0" width="8" height="4" fill="#fff" /><rect x="3" y="4" width="6" height="1" fill="#fff" />
           <rect x="3" y="5" width="6" height="4" fill="#f6d2a2" /><rect x="7" y="6" width="1" height="1" fill="#04121c" />
@@ -40,19 +85,14 @@ const sliced = sprite(['G.G..', '.G...', 'GGG..', '.....', 'OOOOO', 'ODOOO', '..
         </svg>
       </div>
       <div class="station">
-        <span class="knife-tag">CHOP ×{{ wide ? 16 : 8 }}</span>
-        <span :key="`p${wide}`" class="pow">1 chop · {{ wide ? 16 : 8 }} carrots</span>
-        <div :key="wide ? 16 : 8" class="board">
-          <!-- one wide cleaver: a single chop cuts every carrot on the board at once -->
-          <span class="cleaver"><i class="handle" /><i class="steel" /></span>
-          <div v-for="n in (wide ? 16 : 8)" :key="n" class="carrot" :class="n > carry ? 'b2' : 'b1'">
-            <svg class="whole" viewBox="0 0 5 12" width="20" height="48" shape-rendering="crispEdges">
-              <rect v-for="(p, i) in whole" :key="i" :x="p.x" :y="p.y" width="1" height="1" :fill="p.fill" />
-            </svg>
-            <svg class="sliced" viewBox="0 0 5 12" width="20" height="48" shape-rendering="crispEdges">
-              <rect v-for="(p, i) in sliced" :key="i" :x="p.x" :y="p.y" width="1" height="1" :fill="p.fill" />
-            </svg>
-          </div>
+        <span class="knife-tag">CHOP ×{{ batch }}</span>
+        <span v-if="scene.sliced" class="pow">1 chop · {{ batch }} tomatoes</span>
+        <div class="board" :class="{ two: wide }">
+          <!-- one wide cleaver: a single chop cuts every tomato on the board at once -->
+          <span v-if="scene.slam" class="cleaver" :class="scene.slam"><i class="handle" /><i class="steel" /></span>
+          <svg v-for="n in scene.board" :key="n" viewBox="0 0 6 6" width="24" height="24" shape-rendering="crispEdges">
+            <rect v-for="(p, i) in (scene.sliced ? sliced : whole)" :key="i" :x="p.x" :y="p.y" width="1" height="1" :fill="p.fill" />
+          </svg>
         </div>
         <span class="lbl">add</span>
       </div>
@@ -65,7 +105,7 @@ const sliced = sprite(['G.G..', '.G...', 'GGG..', '.....', 'OOOOO', 'ODOOO', '..
         <span class="ns">{{ r.ns }}</span>
       </div>
       <div class="key">
-        <i class="fetch" />fetch <i class="chop" />chop
+        <i class="fetch" />load/store <i class="chop" />chop
         <span class="simd"><b>S</b>ingle <b>I</b>nstruction · <b>M</b>ultiple <b>D</b>ata</span>
       </div>
     </div>
@@ -82,71 +122,35 @@ const sliced = sprite(['G.G..', '.G...', 'GGG..', '.....', 'OOOOO', 'ODOOO', '..
 .fridge i::after { content: ''; position: absolute; right: 10px; top: 14px; width: 6px; height: 30px; background: #04121c; }
 .fridge span, .lbl { position: absolute; bottom: -34px; left: 50%; transform: translateX(-50%); font: 700 18px var(--arc-pixel); letter-spacing: .1em; color: var(--arc-yellow); text-shadow: 2px 2px 0 #04121c; white-space: nowrap; }
 
-.chef { position: absolute; left: 0; bottom: 6px; }
+.chef { position: absolute; left: 0; bottom: 6px; z-index: 2; }
 .chef .body { display: block; }
-.arms { display: flex; gap: 0; justify-content: center; height: 26px; margin-left: -4px; margin-right: -4px; margin-bottom: 4px; opacity: 0; }
+.chef .body.flip { transform: scaleX(-1); }
+/* Armful stacks bottom-up, 4 per row: the pile grows with every grab. */
+.arms { position: absolute; bottom: 100px; left: 4px; display: flex; flex-wrap: wrap-reverse; width: 64px; }
+.count { position: absolute; bottom: 168px; left: 50%; transform: translateX(-50%); font: 700 20px var(--arc-pixel); color: var(--arc-yellow); text-shadow: 2px 2px 0 #04121c; white-space: nowrap; }
+.arms svg { display: block; }
 
 .station { position: absolute; right: 0; bottom: 6px; width: 290px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .pow {
-  position: absolute; left: 0; right: 0; top: -6px; width: fit-content; margin: 0 auto; z-index: 4; opacity: 0; padding: 4px 10px;
+  position: absolute; left: 0; right: 0; top: -6px; width: fit-content; margin: 0 auto; z-index: 4; padding: 4px 10px; transform: rotate(-6deg);
   white-space: nowrap; font: 700 24px var(--arc-pixel); color: #04121c; background: var(--arc-yellow); outline: 4px solid #04121c; box-shadow: 5px 5px 0 #04121c;
 }
 .knife-tag { font: 700 20px var(--arc-pixel); color: #fff; background: var(--arc-pink); padding: 2px 8px; outline: 3px solid #04121c; }
 .board {
-  position: relative; display: grid; grid-template-columns: repeat(8, 26px); gap: 4px 4px; padding: 30px 8px 8px;
-  min-height: 70px; background: #c9a36b; outline: 4px solid #04121c; align-content: end; justify-items: center;
+  position: relative; display: grid; grid-template-columns: repeat(8, 26px); gap: 4px; padding: 30px 8px 8px;
+  min-height: 62px; background: #c9a36b; outline: 4px solid #04121c; align-content: end; justify-items: center;
 }
-.carrot { position: relative; width: 20px; height: 48px; }
-.carrot svg { position: absolute; inset: 0; opacity: 0; }
+.board.two { min-height: 90px; }
 
-/* Cleaver spans the whole board; it rises, then slams down onto every carrot at once. */
-.cleaver { position: absolute; left: -22px; right: -6px; top: -14px; height: 16px; z-index: 3; opacity: 0; display: flex; }
+/* Cleaver spans the whole board: raised, then slammed onto every tomato at once. */
+.cleaver { position: absolute; left: -22px; right: -6px; top: -14px; height: 16px; z-index: 3; display: flex; }
+.cleaver.up { transform: translateY(-30px); }
+.cleaver.down { transform: translateY(34px); }
+.board.two .cleaver.down { transform: translateY(50px); }
 .handle { width: 30px; background: #6b3a1b; outline: 3px solid #04121c; }
 .steel { flex: 1; background: linear-gradient(#eaf2ff 0 70%, #9fb3c8 70%); outline: 3px solid #04121c; }
 
-/* ×8, 3.0 s loop: walk 1.3 s there, 1.3 s back with 8, chop 0.37 s. */
-.k8 .chef { animation: walk8 3s steps(36, end) infinite; }
-.k8 .arms { animation: hold8 3s steps(1, end) infinite; }
-.k8 .chef .body { animation: busy8 3s steps(1, end) infinite; }
-.k8 .cleaver { animation: slam8 3s steps(1, end) infinite; }
-.k8 .pow { animation: pow8 3s steps(1, end) infinite; }
-.k8 .whole { animation: whole8 3s steps(1, end) infinite; }
-.k8 .sliced { animation: sliced8 3s steps(1, end) infinite; }
-@keyframes walk8 {
-  0% { transform: translateX(830px) scaleX(-1) } 43.3% { transform: translateX(110px) scaleX(-1) }
-  43.4% { transform: translateX(110px) } 86.6% { transform: translateX(830px) } 100% { transform: translateX(830px) }
-}
-@keyframes hold8 { 0% { opacity: 0 } 43.3% { opacity: 1 } 86.6% { opacity: 0 } }
-@keyframes busy8 { 0%, 86.5% { transform: none } 87%, 89%, 91%, 93%, 95%, 97% { transform: translateY(-5px) } 88%, 90%, 92%, 94%, 96%, 98%, 100% { transform: none } }
-@keyframes slam8 { 0% { opacity: 0 } 86.6% { opacity: 1; transform: translateY(-34px) } 89.5% { transform: translateY(26px) } 93% { transform: translateY(-34px) } 95.5% { transform: translateY(26px) } 99% { opacity: 0 } }
-@keyframes pow8 { 0% { opacity: 0 } 86.6% { opacity: 1; transform: rotate(-8deg) scale(1) } 92% { transform: rotate(6deg) scale(1.2) } 96% { transform: rotate(-8deg) scale(1) } 99% { opacity: 0 } }
-@keyframes whole8 { 0% { opacity: 0 } 86.6% { opacity: 1 } 89.5% { opacity: 0 } }
-@keyframes sliced8 { 0% { opacity: 0 } 89.5% { opacity: 1 } 99% { opacity: 0 } }
-
-/* ×16, 5.6 s loop: two round trips (still 8 per armful), then one 0.37 s chop. */
-.k16 .chef { animation: walk16 5.6s steps(64, end) infinite; }
-.k16 .arms { animation: hold16 5.6s steps(1, end) infinite; }
-.k16 .chef .body { animation: busy16 5.6s steps(1, end) infinite; }
-.k16 .cleaver { animation: slam16 5.6s steps(1, end) infinite; }
-.k16 .pow { animation: pow16 5.6s steps(1, end) infinite; }
-.k16 .b1 .whole { animation: whole16a 5.6s steps(1, end) infinite; }
-.k16 .b2 .whole { animation: whole16b 5.6s steps(1, end) infinite; }
-.k16 .sliced { animation: sliced16 5.6s steps(1, end) infinite; }
-@keyframes walk16 {
-  0% { transform: translateX(830px) scaleX(-1) } 23.2% { transform: translateX(110px) scaleX(-1) }
-  23.3% { transform: translateX(110px) } 46.4% { transform: translateX(830px) }
-  46.5% { transform: translateX(830px) scaleX(-1) } 69.6% { transform: translateX(110px) scaleX(-1) }
-  69.7% { transform: translateX(110px) } 92.8% { transform: translateX(830px) } 100% { transform: translateX(830px) }
-}
-@keyframes hold16 { 0% { opacity: 0 } 23.2% { opacity: 1 } 46.4% { opacity: 0 } 69.6% { opacity: 1 } 92.8% { opacity: 0 } }
-@keyframes busy16 { 0%, 92.7% { transform: none } 93%, 94.2%, 95.4%, 96.6%, 97.8% { transform: translateY(-5px) } 93.6%, 94.8%, 96%, 97.2%, 98.4%, 100% { transform: none } }
-@keyframes slam16 { 0% { opacity: 0 } 92.8% { opacity: 1; transform: translateY(-34px) } 94.4% { transform: translateY(46px) } 96.3% { transform: translateY(-34px) } 97.6% { transform: translateY(46px) } 99.5% { opacity: 0 } }
-@keyframes pow16 { 0% { opacity: 0 } 92.8% { opacity: 1; transform: rotate(-8deg) scale(1) } 95.5% { transform: rotate(6deg) scale(1.2) } 97.8% { transform: rotate(-8deg) scale(1) } 99.5% { opacity: 0 } }
-@keyframes whole16a { 0% { opacity: 0 } 46.4% { opacity: 1 } 94.4% { opacity: 0 } }
-@keyframes whole16b { 0% { opacity: 0 } 92.8% { opacity: 1 } 94.4% { opacity: 0 } }
-@keyframes sliced16 { 0% { opacity: 0 } 94.4% { opacity: 1 } 99.5% { opacity: 0 } }
-
-/* Time bars: 100 px per second, 16 carrots each. */
+/* Time bars from the benchmark: ×16 fetches the same bytes in one long trip. */
 .bars { display: grid; gap: 8px; }
 .row { display: grid; grid-template-columns: 70px auto 1fr; align-items: center; gap: 16px; opacity: .2; transition: opacity 200ms steps(2, end); }
 .row.on { opacity: 1; }
@@ -154,14 +158,11 @@ const sliced = sprite(['G.G..', '.G...', 'GGG..', '.....', 'OOOOO', 'ODOOO', '..
 .bar { display: flex; gap: 3px; }
 .bar i, .key i { display: inline-block; height: 26px; outline: 3px solid #04121c; }
 .fetch { width: 260px; background: var(--arc-blue); }
+.fetch2 { width: 523px; background: var(--arc-blue); }
 .chop { width: 40px; background: var(--arc-yellow); }
 .ns { font: 700 24px var(--arc-pixel); color: var(--arc-yellow); text-shadow: 2px 2px 0 #04121c; }
 .key { display: flex; align-items: center; gap: 8px; margin-left: 86px; font: 500 19px var(--arc-pixel); letter-spacing: .08em; }
 .key i { height: 14px; width: 14px; margin-left: 10px; }
 .simd { margin-left: auto; font: 700 22px var(--arc-pixel); letter-spacing: .08em; color: #fff; text-shadow: 2px 2px 0 #04121c; }
 .simd b { color: var(--arc-yellow); }
-@media (prefers-reduced-motion: reduce) {
-  .chef, .chef .body, .arms, .cleaver, .pow, .carrot svg { animation: none !important }
-  .chef { transform: translateX(830px) } .sliced { opacity: 1 }
-}
 </style>

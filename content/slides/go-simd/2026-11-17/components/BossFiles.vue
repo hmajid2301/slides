@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // One Go function, then a cartridge per CPU spawns on each click.
-// 0 the function · 1-4 one .s per arch · 5 CPU feature check · 6 bee stings gopher, GAME OVER
+// 0 the function · 1 every .s file drops in one after another, then CPU checks + tests · 2 bee stings gopher, GAME OVER
 import { onMounted, ref, watch } from 'vue'
 import PixelGopher from './PixelGopher.vue'
 import PixelSprite from './PixelSprite.vue'
@@ -15,7 +15,7 @@ function measure() {
   if (g && b) dx.value = g.offsetLeft - b.offsetLeft + 30
 }
 onMounted(measure)
-watch(() => props.step >= 6, measure, { flush: 'post' })
+watch(() => props.step >= 2, measure, { flush: 'post' })
 const carts = [
   { file: 'add_amd64.s', cpu: 'Intel / AMD', tone: 'blue' },
   { file: 'add_arm64.s', cpu: 'Apple / Graviton', tone: 'green' },
@@ -26,7 +26,7 @@ const carts = [
 
 <template>
   <div class="boss">
-    <div ref="fn" class="fn" :class="{ lost: step >= 6 }" :style="{ '--dx': `${dx}px` }">
+    <div ref="fn" class="fn" :class="{ lost: step >= 2 }" :style="{ '--dx': `${dx}px` }">
       <span class="gopher"><PixelGopher :size="72" /></span>
       <span class="tag">YOU</span>
       <code>AddAsm(dst, a, b)</code>
@@ -35,15 +35,16 @@ const carts = [
       <span class="tag pink">ASSEMBLY BEE</span>
     </div>
     <div class="carts">
-      <div v-for="(c, i) in carts" :key="c.file" class="cart-slot" :class="[c.tone, { on: step > i }]">
+      <div v-for="(c, i) in carts" :key="c.file" class="cart-slot" :class="[c.tone, { on: step >= 1 }]"
+        :style="{ transitionDelay: step >= 1 ? `${i * 500}ms` : '0ms' }">
         <div class="label">{{ c.file }}</div>
         <div class="cpu">{{ c.cpu }}</div>
         <div class="hp"><i v-for="h in 5" :key="h" /></div>
       </div>
     </div>
     <div class="extras">
-      <span class="extra" :class="{ on: step >= 5 }">+ CPU checks</span>
-      <span class="extra" :class="{ on: step >= 5 }">+ tests</span>
+      <span class="extra" :class="{ on: step >= 1 }">+ CPU checks</span>
+      <span class="extra" :class="{ on: step >= 1 }">+ tests</span>
     </div>
   </div>
 </template>
@@ -89,7 +90,7 @@ const carts = [
   font: 600 22px var(--arc-mono); padding: 6px 14px; color: #fff; background: #0b1b2b;
   outline: 4px solid #04121c; opacity: 0; transition: opacity 160ms steps(2, end);
 }
-.extra.on { opacity: 1; }
+.extra.on { opacity: 1; transition-delay: 2.1s; }
 @media (prefers-reduced-motion: reduce) {
   .cart-slot { transition: none } .bee, .lost .attacker { animation: none }
   .lost .gopher { animation: none; transform: rotate(180deg); filter: grayscale(1) }

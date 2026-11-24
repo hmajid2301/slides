@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import NinjaHood from './NinjaHood.vue'
 import PixelGopher from './PixelGopher.vue'
 import PixelSprite from './PixelSprite.vue'
 
@@ -39,6 +40,7 @@ const caption = computed(() => [
         <span class="name">ASSEMBLY BEE</span>
       </div>
 
+      <div v-if="step === 2" class="finish"><NinjaHood :size="64" />FINISH HIM!</div>
       <div v-if="dead" class="ko">K.O.</div>
     </div>
     <!-- eslint-disable-next-line vue/no-v-html -->
@@ -76,6 +78,14 @@ const caption = computed(() => [
   font: 700 110px var(--arc-pixel); color: var(--arc-yellow); text-shadow: 8px 8px 0 var(--arc-pink), 12px 12px 0 #04121c;
   animation: pop 400ms steps(4, end) 1300ms both;
 }
+.finish {
+  position: absolute; left: 50%; top: 4%; transform: translateX(-50%) rotate(-3deg); white-space: nowrap;
+  display: flex; align-items: center; gap: 18px;
+  font: 700 64px var(--arc-pixel); color: #ff5c78; text-shadow: 5px 5px 0 #04121c;
+  opacity: 0; animation: cameo 1.6s steps(1, end) 900ms both;
+}
+/* Mortal Kombat cameo: faded, gone after a moment. */
+@keyframes cameo { 0% { opacity: .5 } 100% { opacity: 0 } }
 .caption { margin: 0; text-align: center; font: 500 28px var(--arc-mono); }
 .caption :deep(b) { color: var(--arc-yellow); }
 
@@ -85,5 +95,5 @@ const caption = computed(() => [
 /* Lands upside down on the floor instead of vanishing, so the right side isn't empty. */
 @keyframes fall { 0% { transform: rotate(0) } 20% { transform: translateY(-30px) rotate(20deg) } 100% { transform: translateY(110px) rotate(180deg); filter: grayscale(.7) brightness(.8) } }
 @keyframes pop { from { opacity: 0; transform: translate(-50%, -50%) scale(.3) } }
-@media (prefers-reduced-motion: reduce) { .volley i, .boss .sprite, .ko { animation: none !important } }
+@media (prefers-reduced-motion: reduce) { .volley i, .boss .sprite, .ko, .finish { animation: none !important } }
 </style>

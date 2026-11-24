@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { a, fmt } from './laneValues'
 import { computed } from 'vue'
 
 // Camera dive into a CPU, one click per level:
@@ -53,16 +54,18 @@ const blocks = [
 // Zen 4: 2 FMA (also does MUL) + 2 FADD pipes, 256-bit each.
 const pipes = ['FMA', 'FMA', 'ADD', 'ADD']
 
-// Scene 4: register file. 8 of 32 rows drawn, 16 × 32-bit lanes each.
+// Scene 4: register file, simplified to 8 lanes per register (real width varies by CPU).
 const rows = Array.from({ length: 8 }, (_, r) => r)
-const lanes = Array.from({ length: 16 }, (_, l) => l)
+const lanes = Array.from({ length: 8 }, (_, l) => l)
+// Same floats as Z0 on the next slides.
+const floats = a.map(fmt)
 
 const captions = [
   'My CPU, <b>lid on</b>',
   '<b>2 chiplets</b> × 8 cores',
   'One chiplet: <b>8 cores</b>',
   'One core: the <b>vector unit</b>',
-  '<b>32</b> registers × <b>16</b> floats',
+  '',
 ]
 </script>
 
@@ -86,7 +89,7 @@ const captions = [
         <rect x="300" y="50" width="400" height="8" class="lid-hi" />
         <rect x="300" y="50" width="8" height="120" class="lid-hi" />
         <text x="500" y="236" text-anchor="middle" class="etch">16 CORES</text>
-        <text x="500" y="276" text-anchor="middle" class="etch small">x86-64 · AVX-512</text>
+        <text x="500" y="276" text-anchor="middle" class="etch small">x86-64</text>
       </svg>
 
       <!-- 1 · lid off: chiplets -->
@@ -118,8 +121,7 @@ const captions = [
         <rect :x="l3.x" :y="l3.y" :width="l3.w" :height="l3.h" class="l3" />
         <rect v-for="n in 22" :key="`l3c${n}`" :x="l3.x + n * 42 - 22" :y="l3.y + 14" width="30" height="142" class="l3-cell" />
         <text x="500" y="244" text-anchor="middle" class="tag big">L3 CACHE · 32 MB</text>
-        <text x="500" y="282" text-anchor="middle" class="tag">+64 MB stacked on top (X3D)</text>
-      </svg>
+              </svg>
 
       <!-- 3 · one core -->
       <svg class="scene" :class="sceneClass(3)" :style="sceneStyle(3)" viewBox="0 0 1000 500" shape-rendering="crispEdges">
@@ -134,7 +136,7 @@ const captions = [
         <rect x="360" y="70" width="240" height="120" class="regfile" />
         <svg x="360" y="70" width="240" height="120" viewBox="0 0 1000 500">
           <g v-for="r in rows" :key="r">
-            <rect v-for="l in lanes" :key="l" :x="100 + l * 54" :y="40 + r * 52" width="50" height="40"
+            <rect v-for="l in lanes" :key="l" :x="100 + l * 108" :y="40 + r * 52" width="104" height="40"
               :class="['lane', { z0: r === 0 }]" />
           </g>
         </svg>
@@ -150,9 +152,13 @@ const captions = [
         <rect width="1000" height="500" class="regfile" />
         <g v-for="r in rows" :key="r">
           <text x="84" :y="70 + r * 52" text-anchor="end" class="reg-n" :class="{ hot: r === 0 }">Z{{ r }}</text>
-          <rect v-for="l in lanes" :key="l" :x="100 + l * 54" :y="40 + r * 52" width="50" height="40"
+          <rect v-for="l in lanes" :key="l" :x="100 + l * 108" :y="40 + r * 52" width="104" height="40"
             :class="['lane', { z0: r === 0 }]" :style="r === 0 ? { animationDelay: `${l * 50}ms` } : undefined" />
+          <!-- show, don't tell: each Z0 lane holds one float -->
+          <text v-for="(v, l) in (r === 0 ? floats : [])" :key="`f${l}`" :x="152 + l * 108" y="68" text-anchor="middle" class="lane-val">{{ v }}</text>
         </g>
+        <text x="152" y="22" text-anchor="middle" class="lane-tag">float32</text>
+        <path d="M100 30 v6 h104 v-6" class="lane-brace" />
         <text x="500" y="482" text-anchor="middle" class="tag">… Z8 – Z31</text>
       </svg>
 
@@ -207,6 +213,9 @@ const captions = [
 
 .lane { fill: #1f3d63; stroke: #5dc9e2; stroke-width: 1; vector-effect: non-scaling-stroke; }
 .lane.z0 { fill: var(--arc-yellow); stroke: #04121c; }
+.lane-val { font: 700 20px var(--arc-mono); fill: #04121c; }
+.lane-tag { font: 700 18px var(--arc-pixel); fill: var(--arc-yellow); letter-spacing: .08em; }
+.lane-brace { fill: none; stroke: var(--arc-yellow); stroke-width: 3; vector-effect: non-scaling-stroke; }
 .scene.now .lane.z0 { animation: lane-pop 360ms steps(3, end) both; }
 .reg-n { font: 700 24px var(--arc-mono); fill: #eaf2ff; }
 .reg-n.hot { fill: var(--arc-yellow); }

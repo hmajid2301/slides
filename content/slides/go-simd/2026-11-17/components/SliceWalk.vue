@@ -3,7 +3,6 @@ import { computed } from 'vue'
 
 // 20 floats walked in chunks of n = 8 (AVX2). Clicks:
 // 0 slice · 1 chunk 1 · 2 chunk 2 · 3 tail (4 left, LoadPart pads 4 zeros) · 4 done
-// Falling-blocks nod: the current chunk drops in as a line, then flash-clears when done.
 const props = withDefaults(defineProps<{ step?: number }>(), { step: 0 })
 const len = 20
 const n = 8
@@ -41,8 +40,6 @@ const label = computed(() => [
     </g>
     <text :x="x0" y="190" class="caption">{{ label }}</text>
     <text v-if="step >= 4" x="1160" y="190" text-anchor="end" class="combo">COMBO ×3!</text>
-    <text v-if="step >= 2 && step <= 4" :key="`line${step}`" :x="x0 + (Math.min(step, 4) - 2) * n * (cell + 4) + 4 * (cell + 4)" y="148"
-      text-anchor="middle" class="line-pop">LINE!</text>
   </svg>
 </template>
 
@@ -54,9 +51,7 @@ const label = computed(() => [
 .cell.pad { animation: drop 300ms steps(5, end) both; }
 @keyframes drop { from { transform: translateY(-60px) } }
 @keyframes clear { 0%, 50% { fill: #fff } 25%, 75% { fill: var(--arc-yellow) } }
-.line-pop { font: 700 24px var(--arc-pixel); fill: #fff; stroke: #04121c; stroke-width: 6; paint-order: stroke; letter-spacing: .1em; animation: pop 700ms steps(7, end) both; }
-@keyframes pop { 0% { opacity: 0; transform: translateY(12px) } 20% { opacity: 1 } 80% { opacity: 1 } 100% { opacity: 0; transform: translateY(-16px) } }
-@media (prefers-reduced-motion: reduce) { .cell.now, .cell.done, .cell.pad, .line-pop { animation: none } .line-pop { display: none } }
+@media (prefers-reduced-motion: reduce) { .cell.now, .cell.done, .cell.pad { animation: none } }
 .cell.pad { fill: none; stroke: var(--arc-hud); stroke-dasharray: 6 4; }
 .idx { font: 600 18px var(--arc-mono); fill: var(--arc-ink); pointer-events: none; }
 .cell.now + .idx, .cell.done + .idx { fill: #0b1b2b; }

@@ -1,9 +1,11 @@
 ---
 theme: default
+addons:
+  - slidev-addon-live-quiz
 title: 'The Fast and the Floatiest: SIMD in Go 1.27'
 author: Haseeb Majid
 presenter: true
-duration: 15min
+duration: 20min
 timer: countdown
 download: false
 lineNumbers: false
@@ -22,7 +24,6 @@ drawings:
   enabled: true
   presenterOnly: true
 layout: cover
-label: 'INSERT COIN'
 ---
 
 <div class="grid-2-wide">
@@ -30,9 +31,7 @@ label: 'INSERT COIN'
 
 # The Fast and the Floatiest
 
-### SIMD in Go 1.27. No assembly.
-
-<p class="muted">Haseeb Majid · haseebmajid.dev</p>
+### SIMD in Go 1.27.
 
 <p class="press-start">▶ PRESS START</p>
 
@@ -41,19 +40,14 @@ label: 'INSERT COIN'
 </div>
 
 <!--
-- 15 min. You write Go daily; no CPU knowledge assumed.
-- One example all the way through: add two []float32 slices.
-- Easter egg: click the gopher for a coin.
-- Pixel gopher: own sprite after the Go gopher by Renée French (CC BY 4.0).
 -->
 
 ---
 layout: statement
-label: 'TITLE SCREEN'
 clicks: 1
 ---
 
-<InvaderRow :shot="$clicks >= 1" />
+<p class="simd-acronym"><b>S</b>ingle <b>I</b>nstruction · <b>M</b>ultiple <b>D</b>ata</p>
 
 # Your loop adds **one** number at a time.
 
@@ -61,12 +55,11 @@ clicks: 1
 
 <!--
 - Pause before the click.
-- [click] One beam clears the row. Today: how Go 1.27 lets you use the other seven, in plain Go.
+- [click] Today: how Go 1.27 lets you use the other seven, in plain Go.
 -->
 
 ---
 layout: default
-label: 'TUTORIAL'
 ---
 
 ## The loop we all write
@@ -96,7 +89,6 @@ func AddScalar(dst, a, b []float32) {
 ---
 layout: section
 level: 1
-label: 'INSIDE THE CPU'
 ---
 
 # Inside the CPU
@@ -114,17 +106,19 @@ clicks: 4
 
 <ChipZoom :step="$clicks" />
 
+<GameCameo :show="$clicks >= 1" :delay="1000" :hold="2800" :spots="[{ right: '0', top: '0' }, { left: '0', bottom: '10px' }]"><UavRadar /></GameCameo>
+
 <!--
-- Top-down view, not to scale. Roughly my Ryzen 9 7950X3D.
-- [click] Lid off: 2 chiplets × 8 cores + I/O die.
+- Top-down view of a desktop CPU, not to scale.
+- [click] Lid off: 2 chiplets × 8 cores + I/O die. (CoD4 cameo: UAV online.)
 - [click] One chiplet: 8 cores share a big L3.
 - [click] One core: integer side, vector side. Float maths lives in the vector unit.
-- [click] Registers: 32 × 512-bit. Each one holds 16 floats.
+- [click] Registers: Z0, Z1, … one float32 per lane, side by side.
 -->
 
 ---
 layout: default
-clicks: 4
+clicks: 3
 ---
 
 ## Registers have lanes
@@ -133,11 +127,10 @@ clicks: 4
 
 <!--
 - Register = tiny storage slot the CPU does maths in.
-- Z0 from the last slide. Its lower half has its own name: Y0.
-- [click] Zoom into Y0: 8 lanes, easier to see than 16.
-- [click] Scalar: ADDSS uses one float slot. Rest sits idle. 8 pairs = 8 adds.
-- [click] Wide registers: 256 bits = 8 float32 "lanes".
-- [click] One VADDPS adds all eight pairs at once. 8 → 1. That's SIMD.
+- Drawn with 8 lanes; real registers have 4, 8 or 16 depending on the CPU.
+- [click] Normal add uses one slot. Rest sits idle. 8 pairs = 8 adds.
+- [click] Load 8 floats into each register: one "lane" each.
+- [click] One SIMD add does all eight pairs at once. 8 → 1. That's SIMD.
 -->
 
 ---
@@ -156,9 +149,20 @@ layout: default
 -->
 
 ---
+layout: default
+clicks: 3
+liveOnly: true
+---
+
+<QuizQuestion id="w1-lanes" :step="$clicks" />
+
+<!--
+- [click] Open, 15 s. [click] Reveal. [click] Leaderboard.
+-->
+
+---
 layout: section
 level: 2
-label: 'THE OLD WAY'
 lives: 1
 ---
 
@@ -173,57 +177,66 @@ layout: default
 clicks: 4
 ---
 
-## Hard mode: talking to the CPU yourself
-
 <CpuMachine :step="$clicks" />
 
 <!--
-- Assembly = the CPU's own instructions. Simplified; real file is ~30 lines.
+- Hard mode: talking to the CPU yourself.
+- Assembly = the CPU's own instructions. Simplified names; real file (add_amd64.s) is ~30 lines.
 - "Step" = one instruction; real timing is messier.
-- [click] Load: 8 numbers memory → register Y0.
-- [click] Load b into Y1.
+- [click] Load: 8 numbers memory → register Z0.
+- [click] Load b into Z1.
 - [click] One add, eight sums. This is the whole point.
 - [click] Store back. 4 instructions for 8 floats.
 -->
 
 ---
 layout: default
-clicks: 6
-hurtAt: 6
+clicks: 2
+hurtAt: 2
 ---
 
 ## Boss fight: one file per CPU
 
 <BossFiles :step="$clicks" />
 
-<p v-click="6" class="game-over" style="font-size: 40px; margin: 22px auto 0; transition-delay: 1.4s">GAME OVER <span class="muted" style="font-size: 24px">(for most teams)</span></p>
+<p v-click="2" class="game-over" style="font-size: 40px; margin: 22px auto 0; transition-delay: 1.4s">GAME OVER <span class="muted" style="font-size: 24px">(for most teams)</span></p>
 
 <!--
 - Assembly only runs on the CPU it was written for.
-- [click] Intel/AMD file. [click] ARM file. [click] another. [click] Go fallback.
-- [click] Plus runtime CPU checks and tests for every combo.
+- [click] Files drop in: Intel/AMD, ARM, IBM, Go fallback. Plus CPU checks and tests for every combo.
 - [click] Bee stings the gopher. Worth it for crypto in the stdlib, not your service.
+-->
+
+---
+layout: default
+clicks: 3
+liveOnly: true
+---
+
+<QuizQuestion id="w2-assembly" :step="$clicks" />
+
+<!--
+- [click] Open, 15 s. [click] Reveal. [click] Leaderboard.
 -->
 
 ---
 layout: section
 level: 3
-label: 'GO 1.27'
 lives: 3
 clicks: 1
 heal: true
 ---
 
-# Power-up get!
+# Power-up
 
 <PowerCrate :hit="$clicks >= 1" :size="110">
   <span class="combo-badge">import "simd"</span>
 </PowerCrate>
 
-<WeaponGet :on="$clicks >= 1" />
+<GameCameo :show="$clicks >= 1" :delay="900" :hold="2600" :spots="[{ left: '60px', bottom: '40px' }, { right: '60px', bottom: '40px' }, { right: '60px', top: '20px' }]"><WeaponGet on /></GameCameo>
 
 <!--
-- Go 1.26 shipped simd/archsimd; Go 1.27 adds portable simd.
+- Go 1.27 adds portable simd.
 - [click] Crate pops, gopher gets the new weapon: the simd package. Build with GOEXPERIMENT=simd.
 -->
 
@@ -233,7 +246,7 @@ layout: default
 
 ## Same loop, now with lanes
 
-<div class="dialog code-sm" data-name="add_simd.go">
+<div class="dialog code-sm" data-name="add_simd.go" style="max-width: 820px">
 
 ````md magic-move {lines: false}
 ```go
@@ -276,9 +289,11 @@ func AddSIMD(dst, a, b []float32) {
 
 </div>
 
+<GameCameo :show="$clicks >= 1" :delay="600" :hold="3400" :spots="[{ right: '0', bottom: '40px' }, { right: '0', top: '0' }]"><EvolveLizard :step="1" /></GameCameo>
+
 <!--
 - Start: our scalar loop.
-- [click] Same signature. Float32s has no fixed size.
+- [click] What? AddScalar is evolving! Same signature. Float32s has no fixed size.
 - [click] Empty vector, only used to ask its size. n is fixed at startup: 4, 8 or 16.
 - [click] Load a chunk, Add, Store. Odd bound `len-n+1` lets the compiler drop bounds checks.
 - [click] Tail: leftovers that don't fill a vector. Missing lanes are zero-filled; _ = how many loaded.
@@ -293,18 +308,41 @@ clicks: 4
 
 <SliceWalk :step="$clicks" />
 
+<GameCameo :show="$clicks >= 4" :delay="1000" :hold="2800" :spots="[{ right: '0', top: '0' }, { right: '0', bottom: '10px' }]"><ForcedLaugh /></GameCameo>
+
 <!--
 - 20 floats on an AVX2 box (n = 8).
 - [click] Chunk 1: one load/add/store for 8 floats.
 - [click] Chunk 2.
 - [click] 4 left: LoadPart fills the missing lanes with zeros, StorePart writes only 4.
-- [click] 3 vector adds instead of 20.
+- [click] 3 vector adds instead of 20. (FFX cameo: the forced laugh.)
+-->
+
+---
+layout: default
+clicks: 2
+---
+
+## Choose your fighter
+
+<CharacterSelect :step="$clicks" />
+
+<p class="hint-box" style="margin: 30px auto 0; width: fit-content">
+<span v-if="$clicks === 0">One function → <b>4 builds</b>, each with its own <code>v.Len()</code></span>
+<span v-else-if="$clicks === 1">At startup the CPU picks the <b>widest it supports</b></span>
+<span v-else><code>GODEBUG=simd=256</code> picks one <b>for you</b></span>
+</p>
+
+<!--
+- Where n = v.Len() comes from. The compiler copies any function that uses simd types, once per width.
+- [click] Runtime checks the CPU once at startup and picks the widest copy. Calls go straight to it; no per-call check.
+- [click] GODEBUG=simd=0|128|256|512 overrides; handy for testing other widths. Verified: probe prints 4/4/8/16.
+- The @simd suffix shows up in profiles and stack traces.
 -->
 
 ---
 layout: default
 clicks: 3
-label: 'REMATCH'
 ---
 
 ## Rematch: same bee, new weapon
@@ -315,7 +353,7 @@ label: 'REMATCH'
 - The World 2 boss again, now we fight in plain Go.
 - One shot = one add instruction (simplified).
 - [click] Scalar: one add per instruction, one hit.
-- [click] simd: 8 adds per instruction, 8 hits.
+- [click] simd: 8 adds per instruction, 8 hits. FINISH HIM!
 - [click] Second volley, K.O. 2 add instructions instead of 16. Bee drops to the floor.
 -->
 
@@ -323,19 +361,9 @@ label: 'REMATCH'
 layout: default
 ---
 
-## Inventory
+## Build it
 
-<div class="grid-2">
-<div>
-
-- `simd.Float32s`: **no size in the type**
-- `LoadFloat32s` / `Store`
-- `.Add` `.Mul` `.MulAdd` `.Max` …
-- `LoadFloat32sPart` / `StorePart`
-
-</div>
-<div>
-<div class="dialog" data-name="build it">
+<div class="dialog" data-name="terminal">
 
 ```sh
 GOEXPERIMENT=simd go build ./...
@@ -343,18 +371,37 @@ GOEXPERIMENT=simd go build ./...
 
 </div>
 
-<p class="hint-box">No SIMD hardware? Still runs, <b>emulated</b>.</p>
+<!--
+- Experiment flag at build time; no cgo, no .s files.
+- No SIMD hardware? Still runs, emulated: fine for tests, never a speed-up.
+-->
 
-<RexRun />
-</div>
-</div>
+---
+layout: default
+clicks: 3
+liveOnly: true
+---
+
+<QuizQuestion id="w3-dispatch" :step="$clicks" />
 
 <!--
-- Types are plural Go types: Float32s, Int8s, Uint64s.
-- Load/Store: slices in and out. Part variants: tails.
-- Experiment flag at build time; no cgo, no .s files.
-- T-rex: like the offline browser game, it still plays without the fancy hardware.
-- Emulated: fine for tests, never a speed-up. Numbers on the live slide.
+- [click] Open, 15 s. [click] Reveal. [click] Leaderboard.
+-->
+
+---
+layout: section
+level: 4
+---
+
+# High scores
+
+<p>Adding 4,096 floats</p>
+
+<GameCameo :delay="2600" :hold="2800" :spots="[{ left: '0', bottom: '30px' }, { right: '0', bottom: '30px' }, { right: '0', top: '20px' }]"><div style="width: 350px"><WhipWall /></div></GameCameo>
+
+<!--
+- Castlevania cameo a moment later: whip the wall, find the hidden roast.
+- Now find the reward in the benchmark numbers.
 -->
 
 ---
@@ -362,170 +409,89 @@ layout: default
 clicks: 3
 ---
 
-## Choose your fighter
-
-<CharacterSelect :step="$clicks" />
-
-<p class="muted" style="font-size: 22px; margin-top: 22px">
-<span v-if="$clicks < 2">&nbsp;</span>
-<span v-else-if="$clicks < 3">Startup: the CPU picks</span>
-<span v-else><code>GODEBUG=simd=256</code> overrides</span>
-</p>
-
-<!--
-- One function in, four out: the compiler copies any function that mentions simd types, once per width.
-- My Ryzen picks AVX-512, 16 lanes. GODEBUG is handy for testing other widths.
-- Suffix shows up in profiles and stack traces.
-- [click] The Go runtime checks the CPU at startup...
-- [click] ...and picks the best. Calls between copies are direct; no per-call dispatch.
-- [click] GODEBUG=simd=0|128|256|512 overrides. Verified: probe prints 4/4/8/16.
--->
-
----
-layout: default
-clicks: 2
----
-
-## Secret exit: `archsimd`
-
-<div class="grid-2-wide code-sm">
-<div class="dialog" data-name="add_archsimd_amd64.go">
-
-```go {2-5|7-11}
-func AddArch(dst, a, b []float32) {
-	if !archsimd.X86.AVX2() {
-		AddScalar(dst, a, b)
-		return
-	}
-	i := 0
-	for ; i < len(dst)-8+1; i += 8 {
-		x := archsimd.LoadFloat32x8(a[i : i+8])
-		y := archsimd.LoadFloat32x8(b[i : i+8])
-		x.Add(y).Store(dst[i : i+8])
-	}
-	AddScalar(dst[i:], a[i:], b[i:])
-}
-```
-
-</div>
-<div>
-
-<ArchVenn :step="$clicks" />
-
-<WhipWall />
-
-</div>
-</div>
-
-<!--
-- amd64 since Go 1.26; Go 1.27 adds arm64 (NEON) and wasm. Fixed sizes (Float32x8); you check the CPU. Skip the check → SIGILL.
-- If asked about arm64: archsimd.ARM64.* checks; NEON is always there. SVE is coming in 1.28+.
-- Venn: three CPU families.
-- [click] Code: size and CPU are explicit. Middle lights up = simd, what every CPU shares.
-- [click] Whole circle = archsimd: everything this CPU can do (GFNI, AES…).
-- Default to simd. Drop down for one op via v.ToArch() / FromArch.
-- Whip the wall, find the roast: the hidden room only some CPUs have.
--->
-
----
-layout: section
-level: 4
-label: 'HIGH SCORES'
----
-
-# High scores
-
-<p>4,096 floats · Ryzen 9 7950X3D</p>
-
----
-layout: default
-clicks: 4
----
-
 ## Adding 4,096 floats
 
-<div style="position: relative">
+<div v-show="$clicks < 3" style="position: relative">
 
 <BenchChart :step="$clicks" />
 
-<p v-click="3" style="margin-top: 22px"><span class="combo-badge">NEW RECORD · ~10× FASTER</span></p>
+<p v-click="2" style="margin-top: 22px"><span class="combo-badge">NEW RECORD · ~10× FASTER</span></p>
 
-<SpeedDash :go="$clicks >= 3" />
+<SpeedDash :go="$clicks >= 2" />
 </div>
 
-<TripCost :on="$clicks >= 4" />
+<GameCameo :show="$clicks === 2" :delay="1400" :hold="2800" :spots="[{ right: '0', bottom: '10px' }]"><StonksMeme /></GameCameo>
+
+<GameCameo :show="$clicks === 2" :delay="4600" :hold="2800" :spots="[{ right: '0', top: '40px' }, { right: '0', bottom: '20px' }]"><BeybladeSpin /></GameCameo>
+
+<TripCost :on="$clicks >= 3" />
 
 
 <!--
 - Go 1.27.0, mean of 5 runs, examples/bench-output.txt.
-- Scalar baseline: ~3.3 µs.
-- [click] Hand-written AVX2: ~10× faster.
-- [click] Portable simd (16 lanes here): same speed. Plain Go.
-- [click] archsimd: also the same. Portable costs nothing here.
-- [click] Why >8×: every loop trip pays a check + jump (pink). Scalar pays it per float; SIMD once per 8.
+- High-score table fills bottom-up. Scalar baseline: ~3.3 µs.
+- [click] Hand-written AVX2 assembly (8 lanes, the add_amd64.s file): ~10× faster.
+- [click] Go simd, no assembly; the runtime picked AVX-512, 16 lanes here. Same speed. New record. (Stonks, then Beyblade: let it rip.)
+- [click] Why ~10× with 8 lanes: each load, add and store moves 8 floats (8×), and the loop counter, check and bounds checks are paid once per 8, not per float (~2×).
 - 16 vs 8 lanes barely changes (308 vs 329 ns): next slide.
 - GODEBUG=simd=0 (emulated) ~10.7 µs: slower than scalar.
 -->
 
 ---
 layout: default
-clicks: 3
-label: 'CACHE WALL'
----
-
-## Cache me if you can
-
-<MemoryWall :step="$clicks" />
-
-<!--
-- Each chunk: load a and b, add, store. Blue = moving data, yellow = the add.
-- [click] 8 lanes: the add is a sliver; loads/stores dominate.
-- [click] 16 lanes: half the adds, same bytes to move. 329 → 308 ns.
-- [click] The vector unit sits idle waiting on data. Load/store-bound, not maths-bound.
-- 3 × 16 KB = 48 KB: misses L1 (32 KB), fits L2. Not RAM: cache bandwidth.
-- Zen 4: 512-bit ops run on 256-bit units; L1 does 2×256-bit loads + 1 store per cycle.
-- Diagram is schematic, not to scale.
--->
-
----
-layout: default
 clicks: 1
-label: 'KITCHEN'
 ---
 
 ## The chef and the fridge
 
 <ChefBelt :step="$clicks" />
 
+<GameCameo :show="$clicks >= 1" :delay="1400" :hold="3200" :spots="[{ right: '0', top: '0' }, { left: '0', bottom: '10px' }]"><ArrowKnee /></GameCameo>
+
 <!--
-- Chef = the add. Fridge = cache. Walking = loads/stores.
-- Watch the chef: almost all the time is walking, chopping is a blink.
-- One chop, all the carrots: that's SIMD. Single Instruction, Multiple Data.
-- [click] New knife chops 16 at once, but he still carries 8 per trip: two walks per chop.
+- Chef = the add. Fridge = cache. Grab = load, put back = store.
+- Watch the chef: almost all the time is loading and storing, chopping is a blink.
+- One chop, all the tomatoes: that's SIMD. Single Instruction, Multiple Data.
+- [click] Go simd: 16 per trip, one chop. But grabbing 16 takes twice as long: same bytes.
 - Bars: chopping got cheaper, walking didn't. 329 → 308 ns.
 - The maths was never the slow part.
--->
-
----
-layout: default
-label: 'LIVE PLAY'
----
-
-## Live: pick a width
-
-<LiveBench />
-
-<!--
-- Needs `pnpm dev` (runs go test in examples/ with Go 1.27). Static build replays recorded numbers.
-- Click 512, then 256, 128, OFF. ~1 s each.
-- OFF: emulated, slower than scalar: "not very effective". Never ship that without testing.
-- If live fails, the status line says REPLAY: just keep talking.
+- 3 × 16 KB = 48 KB: misses L1 (32 KB), fits L2. Cache bandwidth, not RAM.
+- Skyrim cameo after the click: L1 miss to the knee.
 -->
 
 ---
 layout: default
 clicks: 3
-label: 'SIDE QUEST'
+liveOnly: true
+---
+
+<QuizQuestion id="w4-bandwidth" :step="$clicks" />
+
+<!--
+- [click] Open, 15 s. [click] Reveal. [click] Leaderboard.
+-->
+
+---
+layout: default
+clicks: 1
+---
+
+## Real-life use cases
+
+<SIMDUseCases :play="$clicks >= 1" />
+
+<!--
+- Three quick examples; sketches, not instruction counts or measured speedups.
+- [click] All three play in turn, ~2.5 s apart:
+- Dot product: lane-wise multiply, then combine the products. Vector-search scores.
+- Matrix × vertex positions: rotate the little ship. CPU-side graphics example, not a GPU claim.
+- Image processing: add brightness across pixel values. Real code must handle range limits.
+- If asked: Go 1.27 portable simd has no ReduceSum; combine lanes explicitly or use a suitable implementation.
+-->
+
+---
+layout: default
+clicks: 1
 ---
 
 ## Do I need this?
@@ -536,40 +502,42 @@ label: 'SIDE QUEST'
 - One HTTP request. Bars are illustrative, not measured.
 - Most of the time: network and the database. Your code is a sliver.
 - [click] SIMD makes your loop 10× faster. The request barely notices.
-- [click] Where it pays: the libraries under you. JSON, hashing, compression, vector search, images. Plus Go's own runtime: the Green Tea GC already uses SIMD.
-- [click] Why it matters for Go: library authors drop assembly for plain Go. You upgrade, you get faster.
+- Where it pays: the libraries under you. JSON, hashing, compression, vector search, images. Plus Go's own runtime: the Green Tea GC already uses SIMD.
+- Why it matters for Go: library authors drop assembly for plain Go. You upgrade, you get faster.
 - Do reach for it yourself when a profile shows one hot loop over numbers or bytes.
 -->
 
 ---
 layout: default
-label: 'TRAPS'
+clicks: 1
 ---
+
+<TrapCard :show="$clicks >= 1" />
+
+<GameCameo :show="$clicks >= 1" :delay="5000" :hold="2800" :spots="[{ right: '0', top: '0' }, { left: '0', top: '0' }]"><ClickerHead /></GameCameo>
 
 ## When SIMD won't save you
 
-<div class="grid-2 traps" style="gap: 28px">
-<div v-click class="cart pink">
+<div class="grid-2 traps" :class="{ shown: $clicks >= 1 }" style="gap: 28px">
+<div class="cart pink">
 
 ### Branchy loops
 `if` per element
-<BranchLanes />
 
 </div>
-<div v-click class="cart pink">
+<div class="cart pink">
 
 ### Tiny slices
 16 floats? Not worth it
 
 </div>
-<div v-click class="cart pink">
+<div class="cart pink">
 
 ### Pointer chasing
 maps, `[]*T`, lists
-<ChompDots />
 
 </div>
-<div v-click class="cart pink">
+<div class="cart pink">
 
 ### Load/store-bound
 16 ≈ 8 lanes
@@ -578,17 +546,18 @@ maps, `[]*T`, lists
 </div>
 
 <!--
-- You activated my trap card! SIMD wants: long, flat slices of numbers, same op on every element.
-- [click] Lanes disagree on the if: run both paths, mask off half each time. You pay for both.
-- [click] Tail and setup cost more than the loop.
-- [click] Data isn't side by side: nothing to load as a chunk.
-- [click] Waiting on loads/stores (cache or RAM): wider lanes won't help.
+- SIMD wants: long, flat slices of numbers, same op on every element.
+- [click] All four appear in turn, ~2 s apart:
+- Branchy: lanes disagree on the if: run both paths, mask off half each time. You pay for both.
+- Tiny slices: tail and setup cost more than the loop.
+- Pointer chasing: data isn't side by side: nothing to load as a chunk. (A Clicker gives chase as this card lands: The Last of Us.)
+- Load/store-bound: waiting on loads/stores (cache or RAM): wider lanes won't help.
 - Rule: profile, find the hot loop, benchmark both.
+- A faded trap card flips somewhere after the first click (Yu-Gi-Oh! cameo).
 -->
 
 ---
 layout: default
-label: 'BOSS TIPS'
 ---
 
 ## Before you ship it
@@ -597,6 +566,7 @@ label: 'BOSS TIPS'
 <ul>
 <li v-click><strong>Experiment</strong>: the API can change</li>
 <li v-click>Test every width: <code>GODEBUG=simd=…</code></li>
+<li v-click><code>simd=0</code> is slower than scalar</li>
 <li v-click>Vectors in locals, not structs</li>
 <li v-click>Never hard-code 8: use <code>Len()</code></li>
 <li v-click>Benchmark first</li>
@@ -604,17 +574,91 @@ label: 'BOSS TIPS'
 <SavePoint />
 </div>
 
+<GameCameo :show="$clicks >= 3" :delay="900" :hold="2600" :spots="[{ left: '0', bottom: '20px' }, { right: '0', bottom: '20px' }, { right: '0', top: '0' }]"><PortalCake /></GameCameo>
+
 <!--
 - [click] Build with GOEXPERIMENT=simd. [click] simd=0|128|256|512.
+- [click] simd=0 is emulated: ~3× slower than scalar. The speed-up is a lie (cake cameo).
 - [click] Structs/arrays of vectors spill to memory → slow.
 - [click] Len() varies by machine. [click] Load/store-bound loops won't speed up.
 - No horizontal sum (ReduceSum) in portable simd yet.
-- simd=0 forces emulation: run tests there too.
+-->
+
+---
+layout: default
+clicks: 3
+liveOnly: true
+---
+
+<QuizQuestion id="bonus-references" :step="$clicks" />
+
+<!--
+- Read the counting rule out loud.
+- [click] Open, 15 s. [click] Reveal: all 16 names. [click] Leaderboard.
+-->
+
+---
+layout: default
+liveOnly: true
+---
+
+<QuizWinner />
+
+<!--
+- Winner is saved on arrival. If "Save results again" shows, click it.
+- Congratulate, then on.
+-->
+
+---
+layout: default
+---
+
+## Special thanks
+
+<div class="credits">
+<span><CreditIcon name="mario" /><b>Super Mario Bros.</b> the world</span>
+<span><CreditIcon name="cod4" /><b>Call of Duty 4</b> UAV online</span>
+<span><CreditIcon name="megaman" /><b>Mega Man</b> weapon get</span>
+<span><CreditIcon name="pokemon" /><b>Pokémon</b> evolution</span>
+<span><CreditIcon name="ffx" /><b>Final Fantasy X</b> the laugh</span>
+<span><CreditIcon name="mortalkombat" /><b>Mortal Kombat</b> finish him</span>
+<span><CreditIcon name="castlevania" /><b>Castlevania</b> wall roast</span>
+<span><CreditIcon name="skyrim" /><b>Skyrim</b> arrow to the knee</span>
+<span><CreditIcon name="lastofus" /><b>The Last of Us</b> clickers</span>
+<span><CreditIcon name="portal" /><b>Portal</b> the speed-up is a lie</span>
+<span><CreditIcon name="beyblade" /><b>Beyblade</b> let it rip</span>
+<span><CreditIcon name="yugioh" /><b>Yu-Gi-Oh!</b> trap cards</span>
+</div>
+
+<!--
+- How many did you spot?
+-->
+
+---
+layout: default
+---
+
+## More side quests
+
+- **CPU-specific instructions** — `simd/archsimd`
+- **Masks** — comparisons and per-lane selection
+- **Reductions** — dot products, sums and floating-point accuracy
+- **Data layout** — contiguous slices, cache and bandwidth
+
+<p class="muted" style="margin-top: 32px; font-size: 24px">
+Read more: <a href="https://go.dev/blog/simd-experiment">go.dev/blog/simd-experiment</a><br>
+CPU-specific API: <a href="https://go.dev/blog/archsimd">go.dev/blog/archsimd</a>
+</p>
+
+<!--
+- Optional next steps, not another API walkthrough.
+- archsimd: explicit vector shapes, feature checks and fallback paths; example stays in examples/.
+- Masks select lanes; reductions combine lanes and need care with rounding and inactive lanes.
+- Data layout and bandwidth often matter as much as arithmetic width. Measure first.
 -->
 
 ---
 layout: statement
-label: 'CONTINUE?'
 ---
 
 <PixelGopher :size="140" bob />
@@ -622,11 +666,6 @@ label: 'CONTINUE?'
 # <span class="glitch">Find a hot loop. Try `simd`.</span>
 
 <ContinueCountdown />
-
-<p class="muted" style="font-size: 24px; line-height: 1.7">
-go.dev/blog/simd-experiment · go.dev/blog/archsimd<br>
-code: gitlab.com/hmajid2301/slides · <code>content/slides/go-simd/2026-11-17/examples</code>
-</p>
 
 <!--
 - One action: pick a numeric hot path, benchmark scalar vs simd.

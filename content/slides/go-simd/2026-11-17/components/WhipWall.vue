@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Vampire-hunter nod for the secret exit: the gopher whips a wall, a brick breaks, a roast drops out.
+// Vampire-hunter nod for the high-scores intermission: whip a wall to reveal a hidden reward.
 // Plays each time the slide becomes active.
 import { ref, watch } from 'vue'
 import { useIsSlideActive } from '@slidev/client'

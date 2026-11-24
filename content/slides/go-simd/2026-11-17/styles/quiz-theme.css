@@ -1,0 +1,27 @@
+/* Arcade skin for slidev-addon-live-quiz. Keep in sync with Banter's `.quiz-arcade`. */
+.arcade .live-quiz {
+  --quiz-bg: #2c5cc5;
+  --quiz-panel: #0b1b2b;
+  --quiz-text: #fff;
+  --quiz-muted: #eaf2ff;
+  --quiz-accent: #fddd00;
+  --quiz-border: #fff;
+  --quiz-correct: #fddd00;
+  --quiz-incorrect: #eaf2ff;
+  --quiz-font-display: 'Pixelify Sans', ui-monospace, monospace;
+  --quiz-font-body: 'DM Sans', system-ui, sans-serif;
+  --quiz-radius: 0;
+  --quiz-shadow: 6px 6px #04121c;
+}
+
+.arcade .live-quiz li { padding-left: 18px; }
+.arcade .live-quiz li::before { display: none; }
+.arcade .live-quiz .quiz-prompt,
+.arcade .live-quiz .quiz-title { text-shadow: 3px 3px #04121c; }
+.arcade .live-quiz .quiz-explain { color: var(--quiz-text); }
+.arcade .live-quiz .quiz-count-bar > span { background: var(--quiz-incorrect); }
+.arcade .live-quiz .quiz-correct .quiz-count-bar > span { background: var(--quiz-correct); }
+.arcade .live-quiz .quiz-eyebrow { font-size: 22px; }
+.arcade .live-quiz .quiz-table td { background: var(--quiz-panel); }
+.arcade .quiz-winner .quiz-eyebrow { text-transform: uppercase; }
+.arcade .quiz-score-hud { color: inherit; font-family: inherit; }

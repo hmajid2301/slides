@@ -10,17 +10,15 @@ const { $page, $frontmatter, $clicks } = useSlideContext()
 const world = computed(() => slides.value
   .filter(s => s.no <= $page.value && s.meta.slide?.frontmatter.layout === 'section')
   .at(-1))
+// HUD shows only "WORLD n-m" (n = section level, m = slides since it); blank before World 1.
 const kicker = computed(() => {
-  if ($frontmatter.label && !world.value) return $frontmatter.label
   if (!world.value) return ''
-  const fm = world.value.meta.slide!.frontmatter
   const stage = $page.value - world.value.no
-  return stage === 0 ? `WORLD ${fm.level}` : `WORLD ${fm.level}-${stage} · ${fm.label}`
+  const level = world.value.meta.slide!.frontmatter.level
+  return stage === 0 ? `WORLD ${level}` : `WORLD ${level}-${stage}`
 })
 // HUD: hearts drop to 2 from click `hurtAt` (boss slide); `heal` flashes them back on the power-up.
 const hearts = computed(() => $frontmatter.hurtAt != null && $clicks.value >= $frontmatter.hurtAt ? 2 : 3)
-// Background critters: offset each loop by page so they don't all appear at slide start.
-const bgDelay = computed(() => `${-(($page.value * 13) % 40)}s`)
 const blocks = 20
 const filled = computed(() => Math.round(blocks * $page.value / Math.max(1, slides.value.length)))
 </script>
@@ -35,21 +33,19 @@ const filled = computed(() => Math.round(blocks * $page.value / Math.max(1, slid
             <path d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z" />
           </svg>
         </span>
-        <span class="hud-coins" aria-hidden="true"><i />×{{ String($page).padStart(2, '0') }}</span>
+        <!-- Quiz off: restore <span class="hud-coins"><i aria-hidden="true" />×<QuizScore /></span> -->
         GO 1.27
       </span>
     </header>
     <main class="arcade-body"><slot /></main>
     <footer class="arcade-footer">
-      <span>SIMD WITHOUT ASSEMBLY</span>
+      <span />
       <span class="arcade-bar" aria-hidden="true">
         <i v-for="n in blocks" :key="n" :class="{ on: n <= filled }" />
       </span>
-      <span>SCORE {{ String($page).padStart(2, '0') }}/{{ String(slides.length).padStart(2, '0') }}</span>
     </footer>
-    <div class="arcade-bg" aria-hidden="true" :style="{ '--bg-delay': bgDelay }">
+    <div class="arcade-bg" aria-hidden="true">
       <i class="bg-qblock" :class="{ hit: variant === 'section' }" />
-      <i class="bg-ufo" /><i class="bg-duck" /><i class="bg-ghost" />
     </div>
     <slot name="overlay" />
   </div>

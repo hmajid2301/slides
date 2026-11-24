@@ -11,6 +11,7 @@
     "@slidev/cli": "^52.19.0"
   },
   "dependencies": {
-    "@slidev/theme-default": "^0.25.0"
+    "@slidev/theme-default": "^0.25.0",
+    "slidev-addon-live-quiz": "file:../../slidev-shared/addons/live-quiz"
   }
 }

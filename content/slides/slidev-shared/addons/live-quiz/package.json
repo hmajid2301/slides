@@ -1,0 +1,18 @@
+{
+  "name": "slidev-addon-live-quiz",
+  "version": "0.1.0",
+  "description": "Slide-driven live audience quiz for Slidev, hosted by Banter Bus",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "keywords": ["slidev", "slidev-addon", "quiz"],
+  "exports": {
+    "./vite": "./vite.js",
+    "./client": "./client/useQuiz.ts",
+    "./styles": "./styles/index.css"
+  },
+  "files": ["vite.js", "server", "shared", "client", "components", "styles", "example.md", "README.md"],
+  "engines": { "slidev": ">=52.0.0" },
+  "dependencies": { "uqr": "0.1.3", "yaml": "2.9.0" },
+  "peerDependencies": { "@slidev/client": ">=52.0.0", "vite": "^8.0.0", "vue": "^3.5.0" }
+}

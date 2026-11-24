@@ -38,6 +38,7 @@ const redirects = [];
 rmSync(output, { recursive: true, force: true });
 mkdirSync(output, { recursive: true });
 for (const asset of [
+  'favicon.svg',
   'favicon-16x16.png',
   'favicon-32x32.png',
   'stylesheets',
@@ -88,7 +89,6 @@ for (const deck of decks) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escape(metadata.title)}</title>
-  <link rel="icon" href="${assetPrefix}favicon-32x32.png">
   <link rel="stylesheet" href="${assetPrefix}reveal-js/dist/reset.css">
   <link rel="stylesheet" href="${assetPrefix}reveal-js/dist/reveal.css">
   <link rel="stylesheet" href="${assetPrefix}${escape(metadata.theme)}">
@@ -137,6 +137,16 @@ ${logo}
       `${prefix}/${deck.new}/* ${prefix}/${deck.new}/index.html 200`,
     );
   }
+  // Apply shared branding after either renderer, including project-path deployments.
+  const htmlPath = join(destination, 'index.html');
+  const iconPrefix = `${prefix}/`;
+  writeFileSync(
+    htmlPath,
+    readFileSync(htmlPath, 'utf8').replace(
+      '</head>',
+      `  <link rel="icon" type="image/png" sizes="32x32" href="${iconPrefix}favicon-32x32.png">\n  <link rel="icon" type="image/png" sizes="16x16" href="${iconPrefix}favicon-16x16.png">\n  <link rel="icon" type="image/svg+xml" href="${iconPrefix}favicon.svg">\n</head>`,
+    ),
+  );
   // Vite cannot bundle images/PDFs referenced only through runtime strings.
   if (existsSync(join(source, 'images')))
     copy(join(source, 'images'), join(destination, 'images'));
@@ -155,6 +165,7 @@ writeFileSync(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Haseeb Majid — Slides</title>
+  <link rel="icon" type="image/svg+xml" href="${prefix}/favicon.svg">
   <meta http-equiv="refresh" content="0; url=https://haseebmajid.dev/talks/">
   <link rel="canonical" href="https://haseebmajid.dev/talks/">
 </head>

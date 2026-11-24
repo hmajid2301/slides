@@ -11,6 +11,7 @@
 # Keep only hand-maintained static assets; ignore output left by older builds.
 /static/slides/*
 !/static/slides/favicon-*.png
+!/static/slides/favicon.svg
 !/static/slides/stylesheets/
 !/static/slides/highlight-js/
 !/static/slides/reveal-init.js

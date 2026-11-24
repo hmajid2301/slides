@@ -1,0 +1,53 @@
+# Live quiz questions (slidev-addon-live-quiz). Plain text only.
+# Changing anything here changes the digest: an existing quiz-results.json
+# then fails the build until it is re-recorded or removed.
+version: 1
+title: 'The Fast and the Floatiest: SIMD quiz'
+questions:
+  - id: w1-lanes
+    prompt: An AVX2 register holds how many float32s?
+    options: ['4', '8', '16', '32']
+    correct: B
+    explanation: AVX2 registers are 256 bits wide, so they hold 8 float32 lanes.
+
+  - id: w2-assembly
+    prompt: Before Go 1.27, fast SIMD meant…
+    options: [cgo, One asm file per CPU, A build tag, Nothing]
+    correct: B
+    explanation: Assembly only runs on the CPU it was written for, so you needed one file per CPU plus a Go fallback.
+
+  - id: w3-dispatch
+    prompt: What decides 4, 8 or 16 lanes?
+    options: ['You, at compile time', The CPU at startup, GOARCH, The GC]
+    correct: B
+    explanation: The runtime checks the CPU at startup and picks the widest copy; GODEBUG=simd=… overrides it.
+
+  - id: w4-bandwidth
+    prompt: Why is 16 lanes barely faster than 8?
+    options: [Loads/stores dominate, AVX-512 is emulated, Bounds checks, GC pauses]
+    correct: A
+    explanation: 16 lanes halves the adds but moves the same bytes, and moving data from cache was already the slow part.
+
+  - id: bonus-references
+    prompt: How many different games did this talk reference?
+    options: ['12', '14', '16', '18']
+    correct: C
+    rule: Count each named game once. Generic arcade / RPG tropes don't count.
+    explanation: Pokémon counts once. Generic save points and arcade slogans don't count.
+    revealItems:
+      - Super Mario Bros.
+      - Space Invaders
+      - Mega Man
+      - Tetris
+      - Street Fighter
+      - Chrome Dino
+      - Castlevania
+      - Sonic
+      - Frogger
+      - Overcooked
+      - Pokémon
+      - Pac-Man
+      - Yu-Gi-Oh!
+      - Duck Hunt
+      - Mortal Kombat
+      - Portal
