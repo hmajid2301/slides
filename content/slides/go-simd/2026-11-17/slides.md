@@ -43,6 +43,21 @@ layout: cover
 -->
 
 ---
+layout: default
+liveOnly: true
+quizJoin: true
+---
+
+# Audience quiz
+
+<QuizJoin compact />
+
+<!--
+- Hosted: sign in, start, then open the paired projector.
+- No live room? Continue answer-only.
+-->
+
+---
 layout: statement
 clicks: 1
 ---
@@ -605,7 +620,7 @@ liveOnly: true
 <QuizWinner />
 
 <!--
-- Winner is saved on arrival. If "Save results again" shows, click it.
+- Hosted: show winner, then download results. Dev saves automatically.
 - Congratulate, then on.
 -->
 

@@ -62,6 +62,13 @@ export interface HostView {
   roundsDone: string[]
 }
 
+export type QuizDisplay = Omit<HostView, 'sessionId'>
+
+export type ProjectorSnapshot = { live: false } | {
+  live: true
+  display: Omit<QuizDisplay, 'recentNicknames' | 'roundsDone'>
+}
+
 /** Status of the private `/__quiz/projector` proxy. */
 export type ProjectorStatus =
   | 'ok'
@@ -77,9 +84,17 @@ export interface ProjectorResponse {
   message?: string
 }
 
+export interface HostedQuizConfig {
+  serverUrl: string
+  issuer: string
+  clientId: string
+  redirectUri: string
+}
+
 /** Contents of `virtual:live-quiz/data`. */
 export interface QuizData {
   quiz: Quiz
   recording: Recording | null
-  mode: 'live' | 'offline'
+  mode: 'live' | 'offline' | 'hosted'
+  hosted?: HostedQuizConfig & { digest: string; skin: Skin }
 }

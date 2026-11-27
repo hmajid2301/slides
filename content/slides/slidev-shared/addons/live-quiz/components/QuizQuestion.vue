@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useHostControl } from '../client/control'
 import { useQuiz } from '../client/useQuiz'
 import { CHOICES } from '../shared/types'
 import type { HostAction } from '../shared/types'
@@ -9,8 +8,7 @@ import QuizStatus from './QuizStatus.vue'
 
 const props = defineProps<{ id: string; step: number }>()
 const quizState = useQuiz()
-const { quiz, recording, mode, view, connected, remainingMs, hostAction, busy } = quizState
-const control = useHostControl()
+const { quiz, recording, mode, view, connected, remainingMs, hostAction, busy, control, hostedBuild, epoch } = quizState
 
 const index = quiz.questions.findIndex(q => q.id === props.id)
 if (index < 0) throw new Error(`QuizQuestion: unknown id "${props.id}"`)
@@ -25,9 +23,16 @@ const current = computed(() => connected.value && view.value?.questionId === pro
 // Never backwards; the server rejects skipped rounds with 409.
 const ACTIONS = ['open', 'reveal', 'leaderboard'] as const
 let attempted = ''
-watch([control, step, serverStage, connected], async () => {
-  if (!control.value || !connected.value || busy.value) return
-  const have = serverStage.value
+watch([control, step, serverStage, connected, epoch], async ([active, next, have, online, generation], previous) => {
+  if (!active || !online || busy.value) return
+  if (hostedBuild) {
+    const [wasActive, previousStep, , wasOnline, previousGeneration] = previous
+    // Only a new one-step advance from the current server stage can send.
+    // Reconnection, preview promotion and clicks missed while offline are baselines, not work.
+    if (!wasActive || !wasOnline || generation !== previousGeneration || previousStep !== have || next !== have + 1) return
+    await hostAction({ type: ACTIONS[have], questionId: props.id })
+    return
+  }
   if (step.value <= have) return
   const key = `${step.value}:${have}`
   if (attempted === key) return // failed once at this point; wait for a new click
@@ -41,7 +46,7 @@ const timerFraction = computed(() => (remainingMs.value == null ? 0 : remainingM
 
 const counts = computed<number[] | null>(() => {
   if (current.value?.counts) return current.value.counts
-  if (mode === 'offline' && recording) return recording.rounds[index]?.counts ?? null
+  if (mode.value === 'offline' && recording) return recording.rounds[index]?.counts ?? null
   return null
 })
 const totalAnswers = computed(() => counts.value?.reduce((a, b) => a + b, 0) ?? 0)

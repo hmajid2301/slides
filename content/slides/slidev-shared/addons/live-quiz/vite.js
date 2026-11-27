@@ -12,7 +12,8 @@ import { QUIZ_FILE, RECORDING_FILE, quizDigest, readQuiz, readRecording } from '
 /**
  * @typedef {object} LiveQuizOptions
  * @property {string} editionDir Absolute edition source directory containing quiz.yaml.
- * @property {Skin} [skin] Banter Bus phone skin. Overridden by QUIZ_SKIN. Default 'neutral'.
+ * @property {Skin} [skin] Banter Bus phone skin. Overridden by QUIZ_SKIN in dev. Default 'neutral'.
+ * @property {import('./shared/types.ts').HostedQuizConfig} [hosted] Public build-only settings.
  */
 
 const DATA_ID = 'virtual:live-quiz/data'
@@ -21,15 +22,25 @@ const OWNERS = Symbol.for('slidev-addon-live-quiz')
 const SCOPE = 'openid'
 const LOOPBACK_HOSTS = new Set([undefined, false, 'localhost', '127.0.0.1', '::1'])
 
-/** @param {string} editionDir @returns {Plugin} */
-function dataPlugin(editionDir) {
+/** @param {LiveQuizOptions} options @returns {Plugin} */
+function dataPlugin({ editionDir, hosted, skin = 'neutral' }) {
   const watched = new Set([resolve(editionDir, QUIZ_FILE), resolve(editionDir, RECORDING_FILE)])
   /** @type {QuizData['mode']} */
   let mode = 'offline'
   return {
     name: 'live-quiz:data',
     configResolved(config) {
-      mode = config.command === 'serve' ? 'live' : 'offline'
+      const devConfigured = process.env.QUIZ_SERVER_URL && process.env.QUIZ_OIDC_ISSUER && process.env.QUIZ_OIDC_CLIENT_ID
+      mode = config.command === 'serve' ? (devConfigured ? 'live' : 'offline') : hosted ? 'hosted' : 'offline'
+      if (mode === 'hosted' && hosted) {
+        const serverUrl = originEnv('hosted.serverUrl', hosted.serverUrl)
+        const issuer = originEnv('hosted.issuer', hosted.issuer)
+        const redirect = new URL(originEnv('hosted.redirectUri', hosted.redirectUri))
+        if (new URL(serverUrl).pathname !== '/' || !hosted.clientId.trim() ||
+          !hosted.redirectUri.endsWith('/') || new URL(hosted.redirectUri).pathname !== config.base)
+          throw new Error('live quiz: hosted config requires an API origin, a client ID and the exact deck base callback')
+        hosted = { serverUrl, issuer, clientId: hosted.clientId, redirectUri: `${redirect.origin}${config.base}` }
+      }
     },
     resolveId(id) {
       return id === DATA_ID ? RESOLVED_DATA_ID : undefined
@@ -42,6 +53,7 @@ function dataPlugin(editionDir) {
       const quiz = readQuiz(editionDir)
       /** @type {QuizData} */
       const data = { quiz, recording: readRecording(editionDir, quiz), mode }
+      if (mode === 'hosted' && hosted) data.hosted = { ...hosted, skin, digest: quizDigest(quiz) }
       return `export default ${JSON.stringify(data)}`
     },
     configureServer(server) {
@@ -203,7 +215,7 @@ function runtimePlugin(editionDir, defaultSkin) {
 /** @param {LiveQuizOptions} options @returns {Plugin[]} */
 export function liveQuiz(options) {
   const editionDir = resolve(options.editionDir)
-  return [dataPlugin(editionDir), runtimePlugin(editionDir, options.skin ?? 'neutral')]
+  return [dataPlugin({ ...options, editionDir }), runtimePlugin(editionDir, options.skin ?? 'neutral')]
 }
 
 export default liveQuiz

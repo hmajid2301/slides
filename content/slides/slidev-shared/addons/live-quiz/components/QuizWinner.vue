@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useHostControl } from '../client/control'
 import { useQuiz } from '../client/useQuiz'
 import QuizLeaderboard from './QuizLeaderboard.vue'
 import QuizStatus from './QuizStatus.vue'
 
-const { quiz, recording, mode, view, connected, hostAction, hostError, busy } = useQuiz()
-const control = useHostControl()
+const { quiz, recording, mode, view, connected, hostAction, hostError, busy, control,
+  hostedBuild, hostedPresenter, downloadRecording, recordingError } = useQuiz()
 
 const finished = computed(() => connected.value && view.value?.phase === 'winner')
 const ready = computed(() => {
@@ -19,7 +18,7 @@ const ready = computed(() => {
 // again is an explicit button.
 const sent = ref(false)
 watch([control, ready], () => {
-  if (!control.value || !ready.value || sent.value || busy.value) return
+  if (hostedBuild || !control.value || !ready.value || sent.value || busy.value) return
   sent.value = true
   hostAction({ type: 'winner' })
 }, { immediate: true })
@@ -27,7 +26,7 @@ const retry = () => hostAction({ type: 'winner' })
 
 const standings = computed(() => {
   if (finished.value) return view.value?.standings ?? []
-  if (mode === 'offline') return recording?.standings ?? []
+  if (mode.value === 'offline') return recording?.standings ?? []
   return []
 })
 const winner = computed(() => standings.value[0] ?? null)
@@ -46,9 +45,12 @@ const winner = computed(() => standings.value[0] ?? null)
     <p v-else class="quiz-muted">
       {{ mode === 'offline' ? 'No recorded results for this talk.' : finished ? 'No players this time.' : 'Final standings appear after the last leaderboard.' }}
     </p>
-    <button v-if="control && finished && (hostError || !sent)" type="button" class="quiz-retry" :disabled="busy" @click="retry">
+    <button v-if="hostedPresenter && ready" type="button" class="quiz-retry" :disabled="busy" @click="retry">Show winner</button>
+    <button v-if="mode === 'live' && control && finished && (hostError || !sent)" type="button" class="quiz-retry" :disabled="busy" @click="retry">
       {{ hostError ? 'Retry saving results' : 'Save results again' }}
     </button>
+    <button v-if="hostedPresenter && finished && winner" type="button" class="quiz-retry" :disabled="busy" @click="downloadRecording">Download quiz-results.json</button>
+    <p v-if="recordingError" class="quiz-status" role="status">{{ recordingError }}</p>
     <QuizStatus />
   </div>
 </template>

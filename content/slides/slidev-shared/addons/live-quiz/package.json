@@ -9,6 +9,7 @@
   "exports": {
     "./vite": "./vite.js",
     "./client": "./client/useQuiz.ts",
+    "./hosted": "./client/hostedSetup.ts",
     "./styles": "./styles/index.css"
   },
   "files": ["vite.js", "server", "shared", "client", "components", "styles", "example.md", "README.md"],

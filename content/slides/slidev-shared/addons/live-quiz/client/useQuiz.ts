@@ -1,9 +1,15 @@
 // Browser-side quiz state: one poller per app, offline adapter in builds.
-import { computed, onScopeDispose, ref, shallowRef } from 'vue'
+import { useNav, useSlideContext } from '@slidev/client'
+import { computed, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import data from 'virtual:live-quiz/data'
-import type { HostAction, HostView, ProjectorResponse, ProjectorStatus, Recording, Standing } from '../shared/types'
+import type { HostAction, HostView, ProjectorResponse, ProjectorStatus, QuizDisplay, Recording, Standing } from '../shared/types'
+import { useHostControl } from './control'
+import { hostedQuiz } from './hostedQuiz'
+import { openProjector, projector, unpairProjector } from './projector'
 
 const live = import.meta.env.DEV && data.mode === 'live'
+const hosted = data.mode === 'hosted' && data.hosted && typeof location !== 'undefined'
+  && location.origin === new URL(data.hosted.redirectUri).origin
 const POLL_MS = 1000
 const TIMEOUT_MS = 4000
 
@@ -113,7 +119,7 @@ function hostAction(action: HostAction): Promise<boolean> {
 }
 
 /** Answer phase for a question: 0 not started, 1 open/closed, 2 revealed, 3 leaderboard/done. */
-function stageOf(v: HostView | null, id: string): number {
+function stageOf(v: QuizDisplay | null, id: string): number {
   if (!v) return 0
   if (v.questionId === id) {
     switch (v.phase) {
@@ -126,36 +132,79 @@ function stageOf(v: HostView | null, id: string): number {
         return 3
     }
   }
-  return v.roundsDone.includes(id) ? 3 : 0
+  return v.roundsDone?.includes(id) ? 3 : 0
 }
 
 export function useQuiz() {
   subscribe()
-  const connected = computed(() => status.value === 'ok' && view.value !== null)
+  const nav = useNav()
+  const { $renderContext } = useSlideContext()
+  const control = useHostControl()
+  let mounted = true
+  onScopeDispose(() => { mounted = false })
+  const guard = () => mounted && control.value
+  const presenter = computed(() => hosted && control.value)
+  const audience = computed(() => hosted && nav.isPlaying.value && !nav.isPrintMode.value
+    && !('print' in nav.currentRoute.value.query) && $renderContext.value === 'slide')
+  const display = computed<QuizDisplay | null>(() => live ? view.value
+    : presenter.value ? hostedQuiz.view.value : audience.value ? projector.display.value : null)
+  const mode = computed(() => live ? 'live' : presenter.value || (audience.value && display.value) ? 'hosted' : 'offline')
+  const connected = computed(() => display.value !== null && (!live || status.value === 'ok'))
+  const displayStatus = computed(() => presenter.value ? hostedQuiz.status.value : status.value)
+  const hostedClock = ref({ offset: 0, receivedAt: 0 })
+  if (hosted) watch(display, (value, _old, cleanup) => {
+    if (!value) return
+    const receivedAt = Date.now()
+    const offset = value.serverNow === _old?.serverNow ? hostedClock.value.offset : value.serverNow - receivedAt
+    hostedClock.value = { offset, receivedAt }
+    // Keep one clock per rendered view, only while there's a visible countdown.
+    if (value.closesAt == null) return
+    const t = setInterval(() => { hostedClock.value = { ...hostedClock.value, receivedAt: Date.now() } }, 250)
+    cleanup(() => clearInterval(t))
+  }, { immediate: true })
   const remainingMs = computed(() => {
-    const closesAt = view.value?.closesAt
+    const closesAt = display.value?.closesAt
     if (closesAt == null) return null
-    return Math.max(0, closesAt - (now.value + clockOffset.value))
+    return Math.max(0, closesAt - (live ? now.value + clockOffset.value : hostedClock.value.receivedAt + hostedClock.value.offset))
   })
+  const pair = () => {
+    if (!data.hosted || !guard() || !hostedQuiz.view.value) return
+    const url = new URL(data.hosted.redirectUri)
+    const path = `/${nav.currentSlideNo.value}`
+    if (location.hash.startsWith('#/')) url.hash = path
+    else url.pathname = `${url.pathname.slice(0, -1)}${path}`
+    openProjector(url, data.hosted.serverUrl, () => hostedQuiz.view.value,
+      () => ({ page: Number(nav.currentRoute.value.params.no), clicks: nav.queryClicks.value }),
+      () => nav.isPresenter.value && !nav.isPrintMode.value && !('print' in nav.currentRoute.value.query))
+  }
   const recording = data.recording as Recording | null
   const topScore = computed<number | null>(() => {
-    if (connected.value) return view.value?.standings?.[0]?.score ?? 0
+    if (connected.value) return display.value?.standings?.[0]?.score ?? 0
     return recording?.standings[0]?.score ?? null
   })
   return {
-    quiz: data.quiz,
-    recording,
-    mode: live ? ('live' as const) : ('offline' as const),
-    status,
-    message,
-    view,
-    connected,
-    hostError,
-    busy,
-    remainingMs,
-    topScore,
-    hostAction,
-    stageOf: (id: string) => stageOf(view.value, id),
+    quiz: data.quiz, recording, mode, control, connected, remainingMs, topScore,
+    status: displayStatus,
+    message: computed(() => presenter.value ? hostedQuiz.message.value : message.value),
+    view: display,
+    hostError: computed(() => live ? hostError.value : null),
+    busy: computed(() => live ? busy.value : presenter.value && hostedQuiz.busy.value),
+    hostAction: (action: HostAction) => live ? hostAction(action) : hostedQuiz.action(action, guard),
+    stageOf: (id: string) => stageOf(display.value, id),
+    hostedBuild: Boolean(hosted),
+    hostedPresenter: presenter,
+    epoch: hostedQuiz.epoch,
+    hasRoom: computed(() => presenter.value && hostedQuiz.room.value !== null),
+    canStart: computed(() => presenter.value && (!hostedQuiz.room.value || hostedQuiz.view.value?.phase === 'winner')),
+    authenticated: computed(() => presenter.value && hostedQuiz.authenticated.value),
+    start: () => hostedQuiz.start(guard),
+    reconnect: () => hostedQuiz.reconnect(guard),
+    downloadRecording: () => hostedQuiz.downloadRecording(guard),
+    recordingError: computed(() => presenter.value ? hostedQuiz.recordingError.value : null),
+    pair,
+    unpair: () => { if (guard()) unpairProjector() },
+    paired: projector.paired,
+    pairError: projector.error,
   }
 }
 

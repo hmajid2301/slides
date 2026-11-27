@@ -17,7 +17,7 @@ const qr = computed(() => {
 </script>
 
 <template>
-  <div v-if="mode === 'live'" class="live-quiz quiz-join" :class="{ 'quiz-compact': props.compact }">
+  <div v-if="mode !== 'offline'" class="live-quiz quiz-join" :class="{ 'quiz-compact': props.compact }">
     <template v-if="joinUrl && qr">
       <img class="quiz-qr" :src="qr" :alt="`QR code for ${shortUrl}`">
       <div class="quiz-join-text">
@@ -29,6 +29,6 @@ const qr = computed(() => {
         </p>
       </div>
     </template>
-    <QuizStatus />
+    <QuizStatus allow-start />
   </div>
 </template>
